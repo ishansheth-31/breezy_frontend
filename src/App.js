@@ -809,7 +809,7 @@ function App() {
                             }}
                         >
                             <TextField
-                                style={{ marginBottom: "10px", width: "40%" }}
+                                style={{ marginBottom: "10px", width: "100%" }}
                                 id="outlined-basic"
                                 label="Visit Reason"
                                 variant="outlined"
