@@ -49,7 +49,7 @@ function App() {
         try {
             setLoading(true);
             const response = await axios.post(
-                `http://127.0.0.1:5000/start/${patient_id}`,
+                `https://breezy-backend-de177311f71b.herokuapp.com/start/${patient_id}`,
                 initialQuestions,
                 {
                     headers: { "Content-Type": "application/json" },
@@ -70,7 +70,7 @@ function App() {
         try {
             setLoading(true);
             const response = await axios.post(
-                `http://127.0.0.1:5000/chat/${patient_id}`,
+                `https://breezy-backend-de177311f71b.herokuapp.com/chat/${patient_id}`,
                 { message: userMessage },
                 {
                     headers: { "Content-Type": "application/json" },
@@ -96,7 +96,7 @@ function App() {
     const fetchReport = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://127.0.0.1:5000/report/${patient_id}`);
+            const response = await axios.get(`https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`);
             console.log("Report:", response.data);
             setLoading(false);
         } catch (error) {
