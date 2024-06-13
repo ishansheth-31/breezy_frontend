@@ -18,6 +18,7 @@ function App() {
         "What is your approximate weight?": "",
         "Are you currently taking any medications?": "",
         "Have you had any recent surgeries?": "",
+        "What surgeries and when?":"",
         "Do you have any known drug allergies?": "",
         "Finally, what are you in for today?": "",
     });
@@ -700,6 +701,110 @@ function App() {
                                 flexDirection: "column",
                             }}
                         >
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    marginBottom: "10px",
+                                }}
+                            >
+                                <TextField
+                                    style={{
+                                        marginRight: "10px",
+                                    }}
+                                    id="outlined-basic"
+                                    label="List Surgeries"
+                                    variant="outlined"
+                                    name={
+                                        Object.keys(initialQuestions)[
+                                            stageNumber - 1
+                                        ]
+                                    }
+                                    onChange={handleInitialQuestionsChange}
+                                />
+                                <Button
+                                    variant="contained"
+                                    name={
+                                        Object.keys(initialQuestions)[
+                                            stageNumber - 1
+                                        ]
+                                    }
+                                    onClick={() => {
+                                        handleInitialQuestionsChangeYN("None");
+                                        setStageNumber(stageNumber + 1);
+                                    }}
+                                >
+                                    None
+                                </Button>
+                            </div>
+                            <Button
+                                variant="text"
+                                onClick={() => {
+                                    setStageNumber(stageNumber + 1);
+                                }}
+                            >
+                                Continue &gt;
+                            </Button>
+                        </div>
+                    </div>
+                )) ||
+                (stageNumber === 7 && (
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                            width: "60%",
+                        }}
+                    >
+                        <div
+                            style={{
+                                height: "30%",
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                flexDirection: "row",
+                            }}
+                        >
+                            <Button
+                                variant="text"
+                                onClick={() => {
+                                    setStageNumber(stageNumber - 1);
+                                }}
+                            >
+                                &lt; Previous
+                            </Button>
+                            <img
+                                style={{ width: "40px" }}
+                                src="./Logo.svg"
+                                alt="Logo"
+                            />
+                        </div>
+                        <div
+                            style={{
+                                height: "30%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                flexDirection: "column",
+                            }}
+                        >
+                            <p>
+                                {Object.keys(initialQuestions)[stageNumber - 1]}
+                            </p>
+                        </div>
+                        <div
+                            style={{
+                                height: "30%",
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                flexDirection: "column",
+                            }}
+                        >
                             <div>
                                 <Button
                                     variant="contained"
@@ -739,7 +844,7 @@ function App() {
                         </div>
                     </div>
                 )) ||
-                (stageNumber === 7 && (
+                (stageNumber === 8 && (
                     <div
                         style={{
                             display: "flex",
