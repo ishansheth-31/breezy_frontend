@@ -1,0 +1,25 @@
+.chat-history {
+    text-align: left;
+    margin: 20px 0;
+    padding: 20px;
+    height: 45%;
+    overflow-y: scroll;
+    display: "flex";
+    justify-content: start;
+}
+
+.chat-history .user {
+    text-align: right;
+    display: "flex";
+    justify-content: end;
+}
+
+.message-input {
+    display: flex;
+    justify-content: space-between;
+}
+
+.message-input input {
+    flex-grow: 1;
+    margin-right: 10px;
+}
