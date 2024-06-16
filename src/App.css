@@ -1,8 +1,7 @@
 .chat-history {
     text-align: left;
-    margin: 20px 0;
-    padding: 20px;
-    height: 45%;
+    height: 100%;
+    width: 100%;
     overflow-y: scroll;
     display: "flex";
     justify-content: start;
@@ -14,12 +13,24 @@
     justify-content: end;
 }
 
-.message-input {
-    display: flex;
-    justify-content: space-between;
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+    scrollbar-width: auto;
+    scrollbar-color: #94d1f2 #ffffff;
 }
 
-.message-input input {
-    flex-grow: 1;
-    margin-right: 10px;
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 16px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #94d1f2;
+    border-radius: 10px;
+    border: 3px solid #ffffff;
 }

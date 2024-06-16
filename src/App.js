@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./App.css";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
 import FormPage from "./Components/formpage";
+import ChatPage from "./Components/chatpage";
 
 function App() {
     const pathParts = window.location.href.split("/");
@@ -19,12 +17,10 @@ function App() {
         "Do you have any known drug allergies?": "",
         "Finally, what are you in for today?": "",
     });
-    const [chatHistory, setChatHistory] = useState([]);
-    const [userMessage, setUserMessage] = useState("");
     const [isConversationStarted, setIsConversationStarted] = useState(false);
-    const [isConversationFinished, setIsConversationFinished] = useState(false);
     const [stageNumber, setStageNumber] = useState(-1);
     const [loading, setLoading] = useState(false);
+    const [chatHistory, setChatHistory] = useState([]);
 
     const handleSubmission = (input, stageNumber) => {
         const concatenatedInput = input.join(" ");
@@ -53,47 +49,6 @@ function App() {
             setLoading(false);
         } catch (error) {
             console.error("Error starting conversation:", error);
-            setLoading(false);
-        }
-    };
-
-    const sendMessage = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.post(
-                `https://breezy-backend-de177311f71b.herokuapp.com/chat/${patient_id}`,
-                { message: userMessage },
-                {
-                    headers: { "Content-Type": "application/json" },
-                }
-            );
-            setChatHistory([
-                ...chatHistory,
-                { role: "user", content: userMessage },
-                { role: "assistant", content: response.data.response },
-            ]);
-            setUserMessage("");
-            if (response.data.finished) {
-                setIsConversationFinished(true);
-                fetchReport();
-            }
-            setLoading(false);
-        } catch (error) {
-            console.error("Error sending message:", error);
-            setLoading(false);
-        }
-    };
-
-    const fetchReport = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.get(
-                `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
-            );
-            console.log("Report:", response.data);
-            setLoading(false);
-        } catch (error) {
-            console.error("Error fetching report:", error);
             setLoading(false);
         }
     };
@@ -208,129 +163,13 @@ function App() {
                     />
                 ))
             ) : (
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%",
-                    }}
-                >
-                    <div style={{ width: "70%", height: "100%" }}>
-                        <div
-                            style={{
-                                display: "flex",
-                                height: "20%",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flexDirection: "column",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    display: "flex",
-                                    width: "100%",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                }}
-                            >
-                                <p style={{ fontSize: "24px" }}>
-                                    Meet your nurse:
-                                </p>
-                                <img
-                                    style={{ width: "40px" }}
-                                    src="./Logo.svg"
-                                    alt="Logo"
-                                />
-                            </div>
-                            <div
-                                style={{
-                                    display: "flex",
-                                    width: "100%",
-                                    alignItems: "start",
-                                    fontSize: "20px",
-                                }}
-                            >
-                                Ava
-                            </div>
-                        </div>
-                        <div
-                            className="chat-history"
-                            style={{
-                                border: "1px solid #1976D2",
-                                borderRadius: "20px 0px 0px 20px",
-                            }}
-                        >
-                            {chatHistory.map((msg, index) => (
-                                <div
-                                    style={{
-                                        marginBottom: "20px",
-                                    }}
-                                    key={index}
-                                    className={msg.role}
-                                >
-                                    <strong>
-                                        {msg.role === "user"
-                                            ? "You"
-                                            : "Virtual Nurse"}
-                                        :
-                                    </strong>{" "}
-                                    {msg.content}
-                                </div>
-                            ))}
-                        </div>
-                        {!isConversationFinished && (
-                            <div
-                                style={{
-                                    display: "flex",
-                                    height: "20%",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <TextField
-                                    style={{
-                                        width: "30em",
-                                        marginRight: "10px",
-                                    }}
-                                    type="text"
-                                    value={userMessage}
-                                    onChange={(e) =>
-                                        setUserMessage(e.target.value)
-                                    }
-                                    onKeyDown={(event) => {
-                                        if (event.key === "Enter") {
-                                            sendMessage();
-                                        }
-                                    }}
-                                    placeholder="Type your message..."
-                                />
-                                {!loading && (
-                                    <Button
-                                        variant="contained"
-                                        onClick={sendMessage}
-                                    >
-                                        Send
-                                    </Button>
-                                )}
-                                {loading && <CircularProgress />}
-                            </div>
-                        )}
-                        {isConversationFinished && (
-                            <div
-                                style={{
-                                    display: "flex",
-                                    height: "20%",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    flexDirection: "column",
-                                }}
-                            >
-                                <h2>Conversation Finished!</h2>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <ChatPage
+                    patient_id={patient_id}
+                    loading={loading}
+                    setLoading={setLoading}
+                    chatHistory={chatHistory}
+                    setChatHistory={setChatHistory}
+                />
             )}
         </div>
     );
