@@ -100,7 +100,7 @@ const ChatPage = ({
                 style={{
                     display: "flex",
                     width: "100%",
-                    height: "80%",
+                    height: "70%",
                     alignItems: "start",
                     flexDirection: "column",
                     margin: "10px 0px",
@@ -109,14 +109,16 @@ const ChatPage = ({
                 <div
                     className="chat-history"
                     style={{
+                        height: "100%",
                         border: "1px solid #94d1f2",
-                        borderRadius: "20px 0px 0px 20px",
+                        borderRadius: "10px 0px 0px 10px",
                     }}
                 >
                     {chatHistory.map((msg, index) => (
                         <div
                             style={{
-                                marginBottom: "20px",
+                                marginBottom: "10px",
+                                padding: "10px",
                             }}
                             key={index}
                             className={msg.role}
@@ -158,6 +160,7 @@ const ChatPage = ({
                                 borderRight: "none",
                                 borderBottom: "1px solid",
                                 fontSize: "18px",
+                                marginRight: "20px",
                             }}
                             type="text"
                             value={userMessage}
@@ -182,7 +185,6 @@ const ChatPage = ({
                                     fontSize: "12px",
                                     fontWeight: "600",
                                     cursor: "pointer",
-                                    marginLeft: "20px",
                                 }}
                             >
                                 Send
