@@ -4,6 +4,7 @@ import "./App.css";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import AudioRecorder from './AudioRecorder';
 
 function App() {
     const pathParts = window.location.href.split('/');
@@ -106,7 +107,17 @@ function App() {
     };
 
     return (
+        <div className="App">
+            {isConversationStarted && !isConversationFinished && (
+                <AudioRecorder />  // Now conditionally rendered during an active conversation
+            )}
+            {/* other components and content */}
+        </div>
+        );
+        }
+    
         <div
+            
             style={{
                 display: "flex",
                 width: "100vw",
@@ -958,7 +969,7 @@ function App() {
                 </div>
             )}
         </div>
-    );
-}
+    ;
+
 
 export default App;
