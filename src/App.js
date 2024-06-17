@@ -142,7 +142,7 @@ function App() {
                                     ? [
                                           {
                                               inputType: "text",
-                                              inputLabel: "Reason",
+                                              inputLabel: "Reason for Visit",
                                           },
                                       ]
                                     : []
