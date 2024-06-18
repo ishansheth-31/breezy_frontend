@@ -24,7 +24,6 @@ function App() {
     const [chatHistory, setChatHistory] = useState([]);
 
     const handleSubmission = (input, stageNumber) => {
-        console.log(input);
         const questionKey = Object.keys(initialQuestions)[stageNumber];
         const updatedQuestions = {
             ...initialQuestions,
@@ -36,9 +35,8 @@ function App() {
     const startConversation = async () => {
         try {
             setLoading(true);
-            console.log(initialQuestions);
             const response = await axios.post(
-                `http://127.0.0.1:5000/start/${patient_id}`,
+                `https://breezy-backend-de177311f71b.herokuapp.com/start/${patient_id}`,
                 initialQuestions,
                 {
                     headers: { "Content-Type": "application/json" },
