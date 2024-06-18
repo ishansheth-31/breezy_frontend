@@ -3,6 +3,7 @@ import axios from "axios";
 import "./App.css";
 import FormPage from "./Components/formpage";
 import ChatPage from "./Components/chatpage";
+import MedFormPage from "./Components/responsiveformpage";
 
 function App() {
     const pathParts = window.location.href.split("/");
@@ -23,11 +24,11 @@ function App() {
     const [chatHistory, setChatHistory] = useState([]);
 
     const handleSubmission = (input, stageNumber) => {
-        const concatenatedInput = input.join(" ");
+        console.log(input);
         const questionKey = Object.keys(initialQuestions)[stageNumber];
         const updatedQuestions = {
             ...initialQuestions,
-            [questionKey]: concatenatedInput,
+            [questionKey]: input,
         };
         setInitialQuestions(updatedQuestions);
     };
@@ -35,8 +36,9 @@ function App() {
     const startConversation = async () => {
         try {
             setLoading(true);
+            console.log(initialQuestions);
             const response = await axios.post(
-                `https://breezy-backend-de177311f71b.herokuapp.com/start/${patient_id}`,
+                `http://127.0.0.1:5000/start/${patient_id}`,
                 initialQuestions,
                 {
                     headers: { "Content-Type": "application/json" },
@@ -79,7 +81,8 @@ function App() {
                         inputs={[]}
                     />
                 )) ||
-                (stageNumber >= 0 && stageNumber <= 6 && (
+                ((stageNumber >= 0 && stageNumber < 3) |
+                    (stageNumber === 6) && (
                     <>
                         <FormPage
                             stageNumber={stageNumber}
@@ -144,6 +147,49 @@ function App() {
                                           {
                                               inputType: "text",
                                               inputLabel: "Reason for Visit",
+                                          },
+                                      ]
+                                    : []
+                            }
+                        />
+                    </>
+                )) ||
+                (stageNumber >= 3 && stageNumber < 6 && (
+                    <>
+                        <MedFormPage
+                            stageNumber={stageNumber}
+                            setStageNumber={setStageNumber}
+                            question={initialQuestions[stageNumber]}
+                            handleSubmission={handleSubmission}
+                            submitLabel="Next"
+                            inputs={
+                                stageNumber === 3
+                                    ? [
+                                          {
+                                              inputType: "text",
+                                              inputLabel: "Medication",
+                                          },
+                                          {
+                                              inputType: "text",
+                                              inputLabel: "Dosage",
+                                          },
+                                      ]
+                                    : stageNumber === 4
+                                    ? [
+                                          {
+                                              inputType: "text",
+                                              inputLabel: "Surgery",
+                                          },
+                                          {
+                                              dosage: "date",
+                                              inputLabel: "Date",
+                                          },
+                                      ]
+                                    : stageNumber === 5
+                                    ? [
+                                          {
+                                              inputType: "text",
+                                              inputLabel: "Drug Allergies",
                                           },
                                       ]
                                     : []

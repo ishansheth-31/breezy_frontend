@@ -16,7 +16,7 @@ const ChatPage = ({
         try {
             setLoading(true);
             const response = await axios.post(
-                `https://breezy-backend-de177311f71b.herokuapp.com/chat/${patient_id}`,
+                `http://127.0.0.1:5000/chat/${patient_id}`,
                 { message: userMessage },
                 {
                     headers: { "Content-Type": "application/json" },
@@ -43,7 +43,7 @@ const ChatPage = ({
         try {
             setLoading(true);
             const response = await axios.get(
-                `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
+                `http://127.0.0.1:5000/report/${patient_id}`
             );
             console.log("Report:", response.data);
             setLoading(false);
@@ -65,7 +65,7 @@ const ChatPage = ({
             <div
                 style={{
                     display: "flex",
-                    height: "20%",
+                    height: "25%",
                     width: "100%",
                     flexDirection: "column",
                 }}
@@ -100,7 +100,7 @@ const ChatPage = ({
                 style={{
                     display: "flex",
                     width: "100%",
-                    height: "70%",
+                    height: "65%",
                     alignItems: "start",
                     flexDirection: "column",
                     margin: "10px 0px",
@@ -161,6 +161,7 @@ const ChatPage = ({
                                 borderBottom: "1px solid",
                                 fontSize: "18px",
                                 marginRight: "20px",
+                                borderRadius: "0px",
                             }}
                             type="text"
                             value={userMessage}
