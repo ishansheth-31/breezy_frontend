@@ -1,12 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
+import "./App.css";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const App = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [transcription, setTranscription] = useState('Realtime speech transcription');
     const [socket, setSocket] = useState(null);
     const [microphone, setMicrophone] = useState(null);
+    const pathParts = window.location.href.split('/');
+    const patient_id = pathParts[pathParts.length - 1];
+
+    const [initialQuestions, setInitialQuestions] = useState({
+        "What is your first and last name?": "",
+        "What is your approximate height?": "4'0\"",
+        "What is your approximate weight?": "",
+        "Are you currently taking any medications?": "",
+        "Have you had any recent surgeries?": "",
+        "Do you have any known drug allergies?": "",
+        "Finally, what are you in for today?": "",
+    });
+    const [chatHistory, setChatHistory] = useState([]);
+    const [userMessage, setUserMessage] = useState("");
+    const [isConversationStarted, setIsConversationStarted] = useState(false);
+    const [isConversationFinished, setIsConversationFinished] = useState(false);
+    const [stageNumber, setStageNumber] = useState(0);
+    const [height, setHeight] = useState("4'0\"");
+    const [loading, setLoading] = useState(false);
+    const [recording, setRecording] = useState(false);
+
+    const handleInitialQuestionsChange = (e) => {
+        setInitialQuestions({
+            ...initialQuestions,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+
+    const handleInitialQuestionsChangeYN = (answer) => {
+        setInitialQuestions({
+            ...initialQuestions,
+            [Object.keys(initialQuestions)[stageNumber - 1]]: answer,
+        });
+    };
+
+    const startConversation = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.post(
+                `http://127.0.0.1:5002/start/${patient_id}`,
+                initialQuestions,
+                {
+                    headers: { "Content-Type": "application/json" },
+                }
+            );
+            setChatHistory([
+                { role: "assistant", content: response.data.initial_response },
+            ]);
+            setIsConversationStarted(true);
+            setLoading(false);
+        } catch (error) {
+            console.error("Error starting conversation:", error);
+            setLoading(false);
+        }
+    };
+
+    const fetchReport = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`http://127.0.0.1:5002/report/${patient_id}`);
+            console.log("Report:", response.data);
+            setLoading(false);
+        } catch (error) {
+            console.error("Error fetching report:", error);
+            setLoading(false);
+        }
+    };
+
 
     useEffect(() => {
         // Establish the socket connection on component mount
@@ -54,10 +127,37 @@ const App = () => {
         microphone.stop();
         microphone.stream.getTracks().forEach(track => track.stop());
         setMicrophone(null);
-        if (socket) {
-            socket.emit("toggle_transcription", { action: "stop" });
+        if (isRecording && !isConversationFinished) {
+            socket.emit("toggle_transcription", { action: "stop", patient_id: patient_id });
         }
     };
+    
+    
+    useEffect(() => {
+        if (socket) {
+            socket.on("transcription_update", (data) => {
+                setTranscription(data.transcription);
+            });
+    
+            socket.on('error', (data) => {
+                alert(data.error);  // Display error message
+            });
+    
+            socket.on('report_generated', (data) => {
+                setIsConversationFinished(true);  // Set conversation as finished
+                fetchReport();
+            });
+    
+            // Proper cleanup to remove event listeners on component unmount
+            return () => {
+                socket.off("transcription_update");
+                socket.off('error');
+                socket.off('report_generated');
+            };
+        }
+    }, [socket]);  // Depend on 'socket' to re-run this effect when it changes
+    
+    
 
     return (
         <div className="content">
