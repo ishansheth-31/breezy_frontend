@@ -3,6 +3,7 @@
     width: 100%;
     overflow-y: scroll;
     display: "flex";
+    flex-direction: column-reverse;
     justify-content: start;
 }
 
