@@ -18,7 +18,7 @@ function App() {
         "Do you have any known drug allergies?": "",
         "Finally, what are you in for today?": "",
     });
-    const [isConversationStarted, setIsConversationStarted] = useState(false);
+    const [isConversationStarted, setIsConversationStarted] = useState(true);
     const [stageNumber, setStageNumber] = useState(-1);
     const [loading, setLoading] = useState(false);
     const [chatHistory, setChatHistory] = useState([]);

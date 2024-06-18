@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
+import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
+import StopIcon from "@mui/icons-material/Stop";
 
 const ChatPage = ({
     patient_id,
@@ -11,6 +13,7 @@ const ChatPage = ({
 }) => {
     const [userMessage, setUserMessage] = useState("");
     const [isConversationFinished, setIsConversationFinished] = useState(false);
+    const [recording, setRecording] = useState(false);
 
     const sendMessage = async () => {
         try {
@@ -52,6 +55,17 @@ const ChatPage = ({
             setLoading(false);
         }
     };
+
+    const handleRecording = async () => {
+        if (!recording) {
+            //code
+        } else {
+            //code
+            sendMessage();
+        }
+        setRecording(!recording);
+    };
+
     return (
         <div
             style={{
@@ -174,22 +188,44 @@ const ChatPage = ({
                             placeholder="Type your message..."
                         />
                         {!loading && (
-                            <button
-                                onClick={sendMessage}
-                                style={{
-                                    borderColor: "#65C6FF",
-                                    color: "#000000",
-                                    borderRadius: "20px",
-                                    padding: "10px 20px 10px 20px",
-                                    border: "1px solid",
-                                    backgroundColor: "#94d1f2",
-                                    fontSize: "12px",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Send
-                            </button>
+                            // <button
+                            //     onClick={sendMessage}
+                            //     style={{
+                            //         borderColor: "#65C6FF",
+                            //         color: "#000000",
+                            //         borderRadius: "20px",
+                            //         padding: "10px 20px 10px 20px",
+                            //         border: "1px solid",
+                            //         backgroundColor: "#94d1f2",
+                            //         fontSize: "12px",
+                            //         fontWeight: "600",
+                            //         cursor: "pointer",
+                            //     }}
+                            // >
+                            //     Send
+                            // </button>
+                            <div>
+                                <button
+                                    style={{
+                                        borderColor: "#65C6FF",
+                                        color: "#ffffff",
+                                        borderRadius: "20px",
+                                        padding: "10px 20px 10px 20px",
+                                        border: "0px",
+                                        backgroundColor: "#94d1f2",
+                                        fontSize: "12px",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={handleRecording}
+                                >
+                                    {!recording ? (
+                                        <KeyboardVoiceIcon />
+                                    ) : (
+                                        <StopIcon />
+                                    )}
+                                </button>
+                            </div>
                         )}
                         {loading && <CircularProgress />}
                     </div>
