@@ -3,7 +3,6 @@
     width: 100%;
     overflow-y: scroll;
     display: "flex";
-    overflow-anchor: none;
     justify-content: start;
 }
 
