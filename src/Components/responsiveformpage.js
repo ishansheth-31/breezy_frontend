@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const FormPage = ({
+const ResponsiveFormPage = ({
     stageNumber,
     setStageNumber,
     question,
@@ -9,9 +9,13 @@ const FormPage = ({
     inputs,
 }) => {
     const [input, setInput] = useState(Array(inputs.length).fill(""));
+    const [cumulativeInput, setCumulativeInput] = useState([]);
+    const [isNone, setIsNone] = useState(false);
 
     useEffect(() => {
         setInput(Array(inputs.length).fill(""));
+        setCumulativeInput([]);
+        setIsNone(false);
     }, [stageNumber, inputs.length]);
 
     const handleInputChange = (index, value) => {
@@ -22,6 +26,27 @@ const FormPage = ({
 
     const isAnyInputEmpty = () => {
         return input.some((value) => value.trim() === "");
+    };
+
+    const isAnyCumInputEmpty = () => {
+        if (isNone) return false;
+        if (cumulativeInput.length > 0) return false;
+        return true;
+    };
+
+    const handleAddInput = () => {
+        if (!isAnyInputEmpty()) {
+            const newEntry = {};
+            inputs.forEach((inputField, index) => {
+                newEntry[inputField.inputLabel] = input[index];
+            });
+            setCumulativeInput([...cumulativeInput, newEntry]);
+            setInput(Array(inputs.length).fill(""));
+        }
+    };
+
+    const handleCheckboxChange = () => {
+        setIsNone(!isNone);
     };
 
     return (
@@ -85,6 +110,17 @@ const FormPage = ({
                         this form so we can help serve you.
                     </p>
                 </div>
+                <div style={{ overflowY: "auto", margin: "10px" }}>
+                    {cumulativeInput.map((entry, index) => (
+                        <div key={index} style={{ marginBottom: "5px" }}>
+                            {Object.entries(entry).map(([key, value]) => (
+                                <span key={key}>
+                                    {key}: {value}{" "}
+                                </span>
+                            ))}
+                        </div>
+                    ))}
+                </div>
             </div>
             <div
                 style={{
@@ -112,7 +148,7 @@ const FormPage = ({
                         gap: "30px",
                     }}
                 >
-                    {inputs.map((input, index) => (
+                    {inputs.map((inputField, index) => (
                         <div
                             key={`${index}-${stageNumber}`}
                             style={{
@@ -132,11 +168,11 @@ const FormPage = ({
                                     fontSize: "18px",
                                     borderRadius: "0px",
                                 }}
-                                name={input.inputLabel}
+                                name={inputField.inputLabel}
                                 onChange={(e) =>
                                     handleInputChange(index, e.target.value)
                                 }
-                                type={input.inputType}
+                                type={inputField.inputType}
                                 value={input[index]}
                             />
                             <p
@@ -146,10 +182,36 @@ const FormPage = ({
                                     fontSize: "12px",
                                 }}
                             >
-                                {input.inputLabel}
+                                {inputField.inputLabel}
                             </p>
                         </div>
                     ))}
+                    <button
+                        onClick={handleAddInput}
+                        style={{
+                            borderColor: "#65C6FF",
+                            color: "#ffffff",
+                            height: "50%",
+                            borderRadius: "2px",
+                            border: "1px solid #000000",
+                            backgroundColor: "#94d1f2",
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                        }}
+                    >
+                        +
+                    </button>
+                </div>
+                <div>
+                    <input
+                        type="checkbox"
+                        id="none"
+                        name="none"
+                        checked={isNone}
+                        onChange={handleCheckboxChange}
+                    />
+                    <label htmlFor="none">None</label>
                 </div>
             </div>
             <div
@@ -163,8 +225,15 @@ const FormPage = ({
             >
                 <button
                     onClick={() => {
-                        if (!isAnyInputEmpty()) {
-                            handleSubmission(input.join(" "), stageNumber);
+                        if (!isAnyCumInputEmpty()) {
+                            if (isNone) {
+                                handleSubmission("none", stageNumber);
+                            } else {
+                                handleSubmission(
+                                    JSON.stringify(cumulativeInput),
+                                    stageNumber
+                                );
+                            }
                             if (stageNumber !== 7) {
                                 setStageNumber(stageNumber + 1);
                             }
@@ -189,4 +258,4 @@ const FormPage = ({
     );
 };
 
-export default FormPage;
+export default ResponsiveFormPage;
