@@ -37,7 +37,7 @@ const FormPage = ({
             <div
                 style={{
                     display: "flex",
-                    height: "55%",
+                    height: "45%",
                     width: "100%",
                     flexDirection: "column",
                 }}
@@ -105,7 +105,14 @@ const FormPage = ({
                 <p style={{ fontSize: "18px", fontWeight: "400" }}>
                     {question}
                 </p>
-                <div style={{ display: "flex", width: "100%", gap: "10px" }}>
+                <div
+                    style={{
+                        display: "flex",
+                        width: "100%",
+                        gap: "10px",
+                        flexDirection: "column",
+                    }}
+                >
                     {inputs.map((input, index) => (
                         <div
                             key={`${index}-${stageNumber}`}
@@ -124,6 +131,7 @@ const FormPage = ({
                                     borderRight: "none",
                                     borderBottom: "1px solid",
                                     fontSize: "18px",
+                                    borderRadius: "0px",
                                 }}
                                 name={input.inputLabel}
                                 onChange={(e) =>
@@ -149,7 +157,7 @@ const FormPage = ({
                 style={{
                     display: "flex",
                     width: "100%",
-                    height: "10%",
+                    height: "8%",
                     alignItems: "end",
                     flexDirection: "column",
                 }}
