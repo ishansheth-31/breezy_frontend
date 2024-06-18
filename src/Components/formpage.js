@@ -38,6 +38,7 @@ const FormPage = ({
                 style={{
                     display: "flex",
                     height: "45%",
+                    // height: "55%",
                     width: "100%",
                     flexDirection: "column",
                 }}
@@ -158,6 +159,7 @@ const FormPage = ({
                     display: "flex",
                     width: "100%",
                     height: "8%",
+                    // height: "10%",
                     alignItems: "end",
                     flexDirection: "column",
                 }}
