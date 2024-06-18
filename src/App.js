@@ -1,178 +1,82 @@
-import React, { useState } from "react";
-import axios from "axios";
-import "./App.css";
-import FormPage from "./Components/formpage";
-import ChatPage from "./Components/chatpage";
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+import axios from 'axios';
 
-function App() {
-    const pathParts = window.location.href.split("/");
-    const patient_id = pathParts[pathParts.length - 1];
+const App = () => {
+    const [isRecording, setIsRecording] = useState(false);
+    const [transcription, setTranscription] = useState('Realtime speech transcription');
+    const [socket, setSocket] = useState(null);
+    const [microphone, setMicrophone] = useState(null);
 
-    const [initialQuestions, setInitialQuestions] = useState({
-        "What is your first and last name?": "",
-        "What is your approximate height?": "4'0\"",
-        "What is your approximate weight?": "",
-        "Are you currently taking any medications?": "",
-        "Have you had any recent surgeries?": "",
-        "Do you have any known drug allergies?": "",
-        "Finally, what are you in for today?": "",
-    });
-    const [isConversationStarted, setIsConversationStarted] = useState(false);
-    const [stageNumber, setStageNumber] = useState(-1);
-    const [loading, setLoading] = useState(false);
-    const [chatHistory, setChatHistory] = useState([]);
+    useEffect(() => {
+        // Establish the socket connection on component mount
+        const socketIo = io("http://localhost:5002"); // Adjust URL/port as necessary
+        setSocket(socketIo);
 
-    const handleSubmission = (input, stageNumber) => {
-        const concatenatedInput = input.join(" ");
-        const questionKey = Object.keys(initialQuestions)[stageNumber];
-        const updatedQuestions = {
-            ...initialQuestions,
-            [questionKey]: concatenatedInput,
+        socketIo.on("transcription_update", (data) => {
+            setTranscription(data.transcription);
+        });
+
+        return () => {
+            socketIo.disconnect();
         };
-        setInitialQuestions(updatedQuestions);
+    }, []);
+
+    const getMicrophone = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mic = new MediaRecorder(stream, { mimeType: "audio/webm" });
+            mic.ondataavailable = async (event) => {
+                if (event.data.size > 0 && socket) {
+                    socket.emit("audio_stream", event.data);
+                }
+            };
+            mic.onstart = () => {
+                setIsRecording(true);
+            };
+            mic.onstop = () => {
+                setIsRecording(false);
+            };
+            return mic;
+        } catch (error) {
+            console.error("Error accessing microphone:", error);
+            throw error;
+        }
     };
 
-    const startConversation = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.post(
-                `https://breezy-backend-de177311f71b.herokuapp.com/start/${patient_id}`,
-                initialQuestions,
-                {
-                    headers: { "Content-Type": "application/json" },
-                }
-            );
-            setChatHistory([
-                { role: "assistant", content: response.data.initial_response },
-            ]);
-            setIsConversationStarted(true);
-            setLoading(false);
-        } catch (error) {
-            console.error("Error starting conversation:", error);
-            setLoading(false);
+    const startRecording = async () => {
+        const mic = await getMicrophone();
+        setMicrophone(mic);
+        mic.start(1000);
+    };
+
+    const stopRecording = () => {
+        microphone.stop();
+        microphone.stream.getTracks().forEach(track => track.stop());
+        setMicrophone(null);
+        if (socket) {
+            socket.emit("toggle_transcription", { action: "stop" });
         }
     };
 
     return (
-        <div
-            style={{
-                display: "flex",
-                height: "100vh",
-                justifyContent: "center",
-                background: "white",
-                color: "black",
-            }}
-        >
-            {!isConversationStarted ? (
-                (stageNumber === -1 && (
-                    <FormPage
-                        stageNumber={stageNumber}
-                        setStageNumber={setStageNumber}
-                        question={
-                            "I become more intelligent the more you share, so I'll ask some questions that will aid me in assisting you."
-                        }
-                        handleSubmission={() => {
-                            return;
-                        }}
-                        submitLabel={"Okay"}
-                        inputs={[]}
-                    />
-                )) ||
-                (stageNumber >= 0 && stageNumber <= 6 && (
-                    <>
-                        <FormPage
-                            stageNumber={stageNumber}
-                            setStageNumber={setStageNumber}
-                            question={initialQuestions[stageNumber]}
-                            handleSubmission={handleSubmission}
-                            submitLabel={
-                                stageNumber === 6 ? "Submit Reason" : "Next"
-                            }
-                            inputs={
-                                stageNumber === 0
-                                    ? [
-                                          {
-                                              inputType: "text",
-                                              inputLabel: "Full Name",
-                                          },
-                                      ]
-                                    : stageNumber === 1
-                                    ? [
-                                          {
-                                              inputType: "number",
-                                              inputLabel: "# Feet",
-                                          },
-                                          {
-                                              inputType: "number",
-                                              inputLabel: "# Inches",
-                                          },
-                                      ]
-                                    : stageNumber === 2
-                                    ? [
-                                          {
-                                              inputType: "number",
-                                              inputLabel: "# Pounds",
-                                          },
-                                      ]
-                                    : stageNumber === 3
-                                    ? [
-                                          {
-                                              inputType: "text",
-                                              inputLabel:
-                                                  "Medications (separate by comma, put 'no' if none)",
-                                          },
-                                      ]
-                                    : stageNumber === 4
-                                    ? [
-                                          {
-                                              inputType: "text",
-                                              inputLabel:
-                                                  "Surgeries (separate by comma, put 'no' if none)",
-                                          },
-                                      ]
-                                    : stageNumber === 5
-                                    ? [
-                                          {
-                                              inputType: "text",
-                                              inputLabel:
-                                                  "Drug Allergies (separate by comma, put 'no' if none)",
-                                          },
-                                      ]
-                                    : stageNumber === 6
-                                    ? [
-                                          {
-                                              inputType: "text",
-                                              inputLabel: "Reason for Visit",
-                                          },
-                                      ]
-                                    : []
-                            }
-                        />
-                    </>
-                )) ||
-                (stageNumber === 7 && (
-                    <FormPage
-                        stageNumber={stageNumber}
-                        setStageNumber={setStageNumber}
-                        question={
-                            "Thank you. Now you will begin a quick 5-minute conversation with our virtual nurse, Ava. This will save you the wait at the doctor’s office."
-                        }
-                        handleSubmission={startConversation}
-                        submitLabel={"Start Conversation"}
-                        inputs={[]}
-                    />
-                ))
-            ) : (
-                <ChatPage
-                    patient_id={patient_id}
-                    loading={loading}
-                    setLoading={setLoading}
-                    chatHistory={chatHistory}
-                    setChatHistory={setChatHistory}
-                />
-            )}
+        <div className="content">
+            <div className="button-container">
+                <button className={`mic-button ${isRecording ? 'recording' : ''}`} onClick={() => {
+                    if (!isRecording) {
+                        socket.emit("toggle_transcription", { action: "start" });
+                        startRecording();
+                    } else {
+                        stopRecording();
+                    }
+                }}>
+                    {isRecording ? 'STOP' : 'START'}
+                </button>
+            </div>
+            <h1>Captions</h1>
+            <div className="captions" id="captions">{transcription}</div>
         </div>
     );
-}
+};
 
 export default App;
