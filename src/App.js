@@ -36,7 +36,7 @@ function App() {
         try {
             setLoading(true);
             const response = await axios.post(
-                `http://127.0.0.1:5003/start/${patient_id}`,
+                `http://127.0.0.1:5003/`,
                 initialQuestions,
                 {
                     headers: { "Content-Type": "application/json" },

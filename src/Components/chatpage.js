@@ -21,26 +21,11 @@ const ChatPage = ({
     const [transcription, setTranscription] = useState('Realtime speech transcription'); // Add state for transcription
 
 
-    useEffect(() => {
-        // Establish the socket connection on component mount
-        const socketIo = io("http://localhost:5003"); // Adjust URL/port as necessary
-        setSocket(socketIo);
-
-        socketIo.on("transcription_update", (data) => {
-            setTranscription(data.transcription);
-        });
-
-        return () => {
-            socketIo.disconnect();
-        };
-    }, []);
-
-
     const sendMessage = async () => {
         try {
             setLoading(true);
             const response = await axios.post(
-                `http://127.0.0.1:5003/chat/${patient_id}`,
+                `https://breezy-backend-de177311f71b.herokuapp.com/chat/${patient_id}`,
                 { message: userMessage },
                 {
                     headers: { "Content-Type": "application/json" },
@@ -67,7 +52,7 @@ const ChatPage = ({
         try {
             setLoading(true);
             const response = await axios.get(
-                `http://127.0.0.1:5003/report/${patient_id}`
+                `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
             );
             console.log("Report:", response.data);
             setLoading(false);
@@ -77,50 +62,91 @@ const ChatPage = ({
         }
     };
 
+    const getMicrophone = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mic = new MediaRecorder(stream, { mimeType: "audio/webm" });
+            mic.ondataavailable = async (event) => {
+                if (event.data.size > 0 && socket) {
+                    socket.emit("audio_stream", event.data);
+                }
+            };
+            mic.onstart = () => {
+                setIsRecording(true);
+            };
+            mic.onstop = () => {
+                setIsRecording(false);
+            };
+            return mic;
+        } catch (error) {
+            console.error("Error accessing microphone:", error);
+            throw error;
+        }
+    };
+
+    const startRecording = async () => {
+        const mic = await getMicrophone();
+        setMicrophone(mic);
+        mic.start(1000);
+    };
+
+    const stopRecording = () => {
+        microphone.stop();
+        microphone.stream.getTracks().forEach(track => track.stop());
+        setMicrophone(null);
+        if (isRecording && !isConversationFinished) {
+            socket.emit("toggle_transcription", { action: "stop", patient_id: patient_id });
+        }
+    };
+
+    useEffect(() => {
+        // Establish the socket connection on component mount
+        const socketIo = io("http://localhost:5003"); // Adjust URL/port as necessary
+        setSocket(socketIo);
+
+        socketIo.on("transcription_update", (data) => {
+            setTranscription(data.transcription);
+        });
+
+        return () => {
+            socketIo.disconnect();
+        };
+    }, []);
+
     const handleRecording = async () => {
         if (!recording) {
-            const getMicrophone = async () => {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    const mic = new MediaRecorder(stream, { mimeType: "audio/webm" });
-                    mic.ondataavailable = async (event) => {
-                        if (event.data.size > 0 && socket) {
-                            socket.emit("audio_stream", event.data);
-                        }
-                    };
-                    mic.onstart = () => {
-                        setIsRecording(true);
-                    };
-                    mic.onstop = () => {
-                        setIsRecording(false);
-                    };
-                    return mic;
-                } catch (error) {
-                    console.error("Error accessing microphone:", error);
-                    throw error;
-                }
-            };
-        
-            const startRecording = async () => {
-                const mic = await getMicrophone();
-                setMicrophone(mic);
-                mic.start(1000);
-            };
-        
-            const stopRecording = () => {
-                microphone.stop();
-                microphone.stream.getTracks().forEach(track => track.stop());
-                setMicrophone(null);
-                if (isRecording && !isConversationFinished) {
-                    socket.emit("toggle_transcription", { action: "stop", patient_id: patient_id });
-                }
-            };
+            startRecording();
+            stopRecording();
         } else {
-            // Code()
+            stopRecording();
             sendMessage();
         }
         setRecording(!recording);
     };
+
+    useEffect(() => {
+        if (socket) {
+            socket.on("transcription_update", (data) => {
+                setTranscription(data.transcription);
+            });
+    
+            socket.on('error', (data) => {
+                alert(data.error);  // Display error message
+            });
+    
+            socket.on('report_generated', (data) => {
+                setIsConversationFinished(true);  // Set conversation as finished
+                fetchReport();
+            });
+    
+            // Proper cleanup to remove event listeners on component unmount
+            return () => {
+                socket.off("transcription_update");
+                socket.off('error');
+                socket.off('report_generated');
+            };
+        }
+    }, [socket]);  // Depend on 'socket' to re-run this effect when it changes
 
     return (
         <div
