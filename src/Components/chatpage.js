@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import axios from "axios";
+import io from 'socket.io-client';
 import CircularProgress from "@mui/material/CircularProgress";
 import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
 import StopIcon from "@mui/icons-material/Stop";
@@ -14,12 +15,32 @@ const ChatPage = ({
     const [userMessage, setUserMessage] = useState("");
     const [isConversationFinished, setIsConversationFinished] = useState(false);
     const [recording, setRecording] = useState(false);
+    const [socket, setSocket] = useState(null); // Add state for socket
+    const [microphone, setMicrophone] = useState(null); // Add state for the microphone
+    const [isRecording, setIsRecording] = useState(false); // Add state for recording
+    const [transcription, setTranscription] = useState('Realtime speech transcription'); // Add state for transcription
+
+
+    useEffect(() => {
+        // Establish the socket connection on component mount
+        const socketIo = io("http://localhost:5003"); // Adjust URL/port as necessary
+        setSocket(socketIo);
+
+        socketIo.on("transcription_update", (data) => {
+            setTranscription(data.transcription);
+        });
+
+        return () => {
+            socketIo.disconnect();
+        };
+    }, []);
+
 
     const sendMessage = async () => {
         try {
             setLoading(true);
             const response = await axios.post(
-                `https://breezy-backend-de177311f71b.herokuapp.com/chat/${patient_id}`,
+                `http://127.0.0.1:5003/chat/${patient_id}`,
                 { message: userMessage },
                 {
                     headers: { "Content-Type": "application/json" },
@@ -46,7 +67,7 @@ const ChatPage = ({
         try {
             setLoading(true);
             const response = await axios.get(
-                `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
+                `http://127.0.0.1:5003/report/${patient_id}`
             );
             console.log("Report:", response.data);
             setLoading(false);
@@ -58,9 +79,44 @@ const ChatPage = ({
 
     const handleRecording = async () => {
         if (!recording) {
-            //code
+            const getMicrophone = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const mic = new MediaRecorder(stream, { mimeType: "audio/webm" });
+                    mic.ondataavailable = async (event) => {
+                        if (event.data.size > 0 && socket) {
+                            socket.emit("audio_stream", event.data);
+                        }
+                    };
+                    mic.onstart = () => {
+                        setIsRecording(true);
+                    };
+                    mic.onstop = () => {
+                        setIsRecording(false);
+                    };
+                    return mic;
+                } catch (error) {
+                    console.error("Error accessing microphone:", error);
+                    throw error;
+                }
+            };
+        
+            const startRecording = async () => {
+                const mic = await getMicrophone();
+                setMicrophone(mic);
+                mic.start(1000);
+            };
+        
+            const stopRecording = () => {
+                microphone.stop();
+                microphone.stream.getTracks().forEach(track => track.stop());
+                setMicrophone(null);
+                if (isRecording && !isConversationFinished) {
+                    socket.emit("toggle_transcription", { action: "stop", patient_id: patient_id });
+                }
+            };
         } else {
-            //code
+            // Code()
             sendMessage();
         }
         setRecording(!recording);

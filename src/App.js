@@ -36,7 +36,7 @@ function App() {
         try {
             setLoading(true);
             const response = await axios.post(
-                `https://breezy-backend-de177311f71b.herokuapp.com/start/${patient_id}`,
+                `http://127.0.0.1:5003/start/${patient_id}`,
                 initialQuestions,
                 {
                     headers: { "Content-Type": "application/json" },
