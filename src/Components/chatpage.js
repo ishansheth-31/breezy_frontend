@@ -19,7 +19,7 @@ const ChatPage = ({
         try {
             setLoading(true);
             const response = await axios.post(
-                `https://breezy-backend-de177311f71b.herokuapp.com/chat/${patient_id}`,
+                `http://127.0.0.1:5003/chat/${patient_id}`,
                 { message: userMessage },
                 {
                     headers: { "Content-Type": "application/json" },
@@ -46,7 +46,7 @@ const ChatPage = ({
         try {
             setLoading(true);
             const response = await axios.get(
-                `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
+                `http://127.0.0.1:5003/report/${patient_id}`
             );
             console.log("Report:", response.data);
             setLoading(false);
