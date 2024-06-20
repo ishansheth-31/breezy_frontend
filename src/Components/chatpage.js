@@ -91,10 +91,12 @@ const ChatPage = ({
     };
 
     const stopRecording = () => {
-        microphone.stop();
-        microphone.stream.getTracks().forEach(track => track.stop());
-        setMicrophone(null);
-        if (isRecording && !isConversationFinished) {
+        if (microphone) {
+            microphone.stop();
+            microphone.stream.getTracks().forEach(track => track.stop());
+            setMicrophone(null);
+        }
+        if (isRecording && !isConversationFinished && socket) {
             socket.emit("toggle_transcription", { action: "stop", patient_id: patient_id });
         }
     };
@@ -114,15 +116,26 @@ const ChatPage = ({
     }, []);
 
     const handleRecording = async () => {
-        if (!recording) {
-            startRecording();
-            stopRecording();
-        } else {
-            stopRecording();
-            sendMessage();
+        try {
+            if (!recording) {
+                const mic = await getMicrophone();
+                setMicrophone(mic);
+                mic.start();
+            } else {
+                microphone.stop();
+                microphone.stream.getTracks().forEach(track => track.stop());
+                setMicrophone(null);
+                if (!isConversationFinished && socket) {
+                    socket.emit("toggle_transcription", { action: "stop", patient_id: patient_id });
+                    sendMessage();
+                }
+            }
+            setRecording(!recording);
+        } catch (error) {
+            console.error("Error handling recording:", error);
         }
-        setRecording(!recording);
     };
+    
 
     useEffect(() => {
         if (socket) {

@@ -4,6 +4,7 @@ import "./App.css";
 import FormPage from "./Components/formpage";
 import ChatPage from "./Components/chatpage";
 import MedFormPage from "./Components/responsiveformpage";
+import { useNavigate } from "react-router-dom";
 
 function App() {
     const pathParts = window.location.href.split("/");
@@ -32,11 +33,13 @@ function App() {
         setInitialQuestions(updatedQuestions);
     };
 
+    const navigate = useNavigate();
+
     const startConversation = async () => {
         try {
             setLoading(true);
             const response = await axios.post(
-                `http://127.0.0.1:5003/start/${patient_id}`,
+                `http://127.0.0.1:5003/`,
                 initialQuestions,
                 {
                     headers: { "Content-Type": "application/json" },
@@ -47,6 +50,7 @@ function App() {
             ]);
             setIsConversationStarted(true);
             setLoading(false);
+            navigate("/desired-page"); // Navigate to the desired page after starting the conversation
         } catch (error) {
             console.error("Error starting conversation:", error);
             setLoading(false);
@@ -58,7 +62,6 @@ function App() {
             style={{
                 display: "flex",
                 height: "85vh",
-                //height: "100vh",
                 justifyContent: "center",
                 background: "white",
                 color: "black",
