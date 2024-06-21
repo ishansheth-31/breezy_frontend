@@ -51,7 +51,7 @@ const App = () => {
         try {
             setLoading(true);
             const response = await axios.post(
-                `http://127.0.0.1:5002/start/${patient_id}`,
+                `http://127.0.0.1:5003/start/${patient_id}`,
                 initialQuestions,
                 {
                     headers: { "Content-Type": "application/json" },
@@ -71,7 +71,7 @@ const App = () => {
     const fetchReport = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://127.0.0.1:5002/report/${patient_id}`);
+            const response = await axios.get(`http://127.0.0.1:5003/report/${patient_id}`);
             console.log("Report:", response.data);
             setLoading(false);
         } catch (error) {
@@ -83,7 +83,7 @@ const App = () => {
 
     useEffect(() => {
         // Establish the socket connection on component mount
-        const socketIo = io("http://localhost:5002"); // Adjust URL/port as necessary
+        const socketIo = io("http://localhost:5003"); // Adjust URL/port as necessary
         setSocket(socketIo);
 
         socketIo.on("transcription_update", (data) => {
