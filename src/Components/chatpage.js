@@ -26,7 +26,7 @@ const ChatPage = ({
         try {
             setLoading(true);
             const response = await axios.get(
-                `http://127.0.0.1:5000/report/${patient_id}`
+                `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
             );
             console.log("Report:", response.data);
             setLoading(false);
@@ -37,7 +37,7 @@ const ChatPage = ({
     };
 
     useEffect(() => {
-        const socketIo = io("http://127.0.0.1:5000");
+        const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
         setSocket(socketIo);
 
         socketIo.on("transcription_update", (data) => {
