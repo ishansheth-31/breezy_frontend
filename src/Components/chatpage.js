@@ -22,38 +22,11 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const sendMessage = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.post(
-                `http://127.0.0.1:5000/chat/${patient_id}`,
-                { message: userMessage },
-                {
-                    headers: { "Content-Type": "application/json" },
-                }
-            );
-            setChatHistory([
-                ...chatHistory,
-                { role: "user", content: userMessage },
-                { role: "assistant", content: response.data.response },
-            ]);
-            setUserMessage("");
-            if (response.data.finished) {
-                setIsConversationFinished(true);
-                fetchReport();
-            }
-            setLoading(false);
-        } catch (error) {
-            console.error("Error sending message:", error);
-            setLoading(false);
-        }
-    };
-
     const fetchReport = async () => {
         try {
             setLoading(true);
             const response = await axios.get(
-                `http://127.0.0.1:5000/report/${patient_id}`
+                `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
             );
             console.log("Report:", response.data);
             setLoading(false);
@@ -64,7 +37,7 @@ const ChatPage = ({
     };
 
     useEffect(() => {
-        const socketIo = io("http://127.0.0.1:5000");
+        const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
         setSocket(socketIo);
 
         socketIo.on("transcription_update", (data) => {
@@ -121,9 +94,6 @@ const ChatPage = ({
         setMicrophone(mic);
         mic.start(1000);
         setIsProcessing(false);
-        console.log("test1");
-        socket.emit("toggle_transcription", { action: "start", patient_id });
-        console.log("test2");
     };
 
     const stopRecording = () => {
@@ -305,8 +275,9 @@ const ChatPage = ({
                                     }}
                                     onClick={() => {
                                         if (!isRecording && !isProcessing) {
+                                            socket.emit("toggle_transcription", {action: "start"})
                                             startRecording();
-                                        } else if (isRecording) {
+                                        } else {
                                             stopRecording();
                                         }
                                     }}
