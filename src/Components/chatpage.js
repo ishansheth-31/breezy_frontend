@@ -37,23 +37,13 @@ const ChatPage = ({
     };
 
     useEffect(() => {
-        const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com", {
-            transports: ["polling", "websocket"],
-        });
+        const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
         setSocket(socketIo);
-    
-        socketIo.on("connect", () => {
-            console.log(`Connected with session id: ${socketIo.id}`);
-        });
-    
-        socketIo.on("disconnect", () => {
-            console.log(`Disconnected from session id: ${socketIo.id}`);
-        });
-    
+
         socketIo.on("transcription_update", (data) => {
             setTranscription(data.transcription);
         });
-    
+
         socketIo.on("transcription_response", (data) => {
             const { user_message, response, finished } = data;
             setChatHistory((prevHistory) => [
@@ -68,12 +58,11 @@ const ChatPage = ({
                 fetchReport();
             }
         });
-    
+
         return () => {
             socketIo.disconnect();
         };
     }, []);
-    
 
     const getMicrophone = async () => {
         try {
