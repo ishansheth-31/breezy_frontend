@@ -5,6 +5,7 @@ import FormPage from "./Components/formpage";
 import ChatPage from "./Components/chatpage";
 
 function App() {
+    // Extract the patient ID from the URL
     const pathParts = window.location.href.split("/");
     const patient_id = pathParts[pathParts.length - 1];
 
@@ -36,7 +37,7 @@ function App() {
         try {
             setLoading(true);
             const response = await axios.post(
-                `https://breezy-backend-de177311f71b.herokuapp.com/start/${patient_id}`,
+                `http://127.0.0.1:5000/start/${patient_id}`,
                 initialQuestions,
                 {
                     headers: { "Content-Type": "application/json" },
@@ -83,7 +84,7 @@ function App() {
                         <FormPage
                             stageNumber={stageNumber}
                             setStageNumber={setStageNumber}
-                            question={initialQuestions[stageNumber]}
+                            question={Object.keys(initialQuestions)[stageNumber]}
                             handleSubmission={handleSubmission}
                             submitLabel={
                                 stageNumber === 6 ? "Submit Reason" : "Next"
