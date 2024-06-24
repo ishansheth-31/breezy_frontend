@@ -37,7 +37,9 @@ const ChatPage = ({
     };
 
     useEffect(() => {
-        const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
+        const socketIo = io(
+            "https://breezy-backend-de177311f71b.herokuapp.com"
+        );
         setSocket(socketIo);
 
         socketIo.on("transcription_update", (data) => {
@@ -54,15 +56,18 @@ const ChatPage = ({
             setIsConversationFinished(finished);
             setLoading(false);
             setIsProcessing(false);
-            if (finished) {
-                fetchReport();
-            }
         });
 
         return () => {
             socketIo.disconnect();
         };
     }, []);
+
+    useEffect(() => {
+        if (isConversationFinished) {
+            fetchReport();
+        }
+    }, [isConversationFinished]);
 
     const getMicrophone = async () => {
         try {
@@ -275,7 +280,10 @@ const ChatPage = ({
                                     }}
                                     onClick={() => {
                                         if (!isRecording && !isProcessing) {
-                                            socket.emit("toggle_transcription", {action: "start"})
+                                            socket.emit(
+                                                "toggle_transcription",
+                                                { action: "start" }
+                                            );
                                             startRecording();
                                         } else {
                                             stopRecording();
