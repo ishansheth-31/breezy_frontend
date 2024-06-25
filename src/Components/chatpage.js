@@ -80,7 +80,8 @@ const ChatPage = ({
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
             });
-            const mic = new MediaRecorder(stream, { mimeType: "audio/webm" });
+            const mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 'audio/webm';
+            const mic = new MediaRecorder(stream, { mimeType : mimeType });
             mic.ondataavailable = async (event) => {
                 if (event.data.size > 0 && socket) {
                     socket.emit("audio_stream", event.data);
