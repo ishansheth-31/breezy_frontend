@@ -4,6 +4,7 @@ import "./App.css";
 import FormPage from "./Components/formpage";
 import ChatPage from "./Components/chatpage";
 import MedFormPage from "./Components/responsiveformpage";
+import BinaryFormPage from "./Components/binaryformpage";
 
 function App() {
     const pathParts = window.location.href.split("/");
@@ -16,7 +17,13 @@ function App() {
         "Are you currently taking any medications?": "",
         "Have you had any recent surgeries?": "",
         "Do you have any known drug allergies?": "",
-        "Finally, what are you in for today?": "",
+        "Do you smoke or vape?": "",
+        "Do you have exposure to 2nd-hand smoke or passive exposure?": "",
+        "Do you consume smokeless tobacco products? (Chewing tobacco, Zyn, nicotine patches, etc.)":
+            "",
+        "Do you consume alcohol or other drugs?": "",
+        "Do you have a regular exercise habit?": "",
+        "Finally, what is the main reason for your visit?": "",
     });
     const [isConversationStarted, setIsConversationStarted] = useState(false);
     const [stageNumber, setStageNumber] = useState(-1);
@@ -80,15 +87,17 @@ function App() {
                     />
                 )) ||
                 ((stageNumber >= 0 && stageNumber < 3) |
-                    (stageNumber === 6) && (
+                    (stageNumber === 11) && (
                     <>
                         <FormPage
                             stageNumber={stageNumber}
                             setStageNumber={setStageNumber}
-                            question={initialQuestions[stageNumber]}
+                            question={
+                                Object.keys(initialQuestions)[stageNumber]
+                            }
                             handleSubmission={handleSubmission}
                             submitLabel={
-                                stageNumber === 6 ? "Submit Reason" : "Next"
+                                stageNumber === 11 ? "Submit Reason" : "Next"
                             }
                             inputs={
                                 stageNumber === 0
@@ -140,7 +149,7 @@ function App() {
                                                   "Drug Allergies (separate by comma, put 'no' if none)",
                                           },
                                       ]
-                                    : stageNumber === 6
+                                    : stageNumber === 11
                                     ? [
                                           {
                                               inputType: "text",
@@ -157,7 +166,9 @@ function App() {
                         <MedFormPage
                             stageNumber={stageNumber}
                             setStageNumber={setStageNumber}
-                            question={initialQuestions[stageNumber]}
+                            question={
+                                Object.keys(initialQuestions)[stageNumber]
+                            }
                             handleSubmission={handleSubmission}
                             submitLabel="Next"
                             inputs={
@@ -195,7 +206,7 @@ function App() {
                         />
                     </>
                 )) ||
-                (stageNumber === 7 && (
+                (stageNumber === 12 && (
                     <FormPage
                         stageNumber={stageNumber}
                         setStageNumber={setStageNumber}
@@ -205,6 +216,15 @@ function App() {
                         handleSubmission={startConversation}
                         submitLabel={"Start Conversation"}
                         inputs={[]}
+                    />
+                )) ||
+                (stageNumber >= 6 && stageNumber < 12 && (
+                    <BinaryFormPage
+                        stageNumber={stageNumber}
+                        setStageNumber={setStageNumber}
+                        question={Object.keys(initialQuestions)[stageNumber]}
+                        handleSubmission={handleSubmission}
+                        submitLabel="Next"
                     />
                 ))
             ) : (

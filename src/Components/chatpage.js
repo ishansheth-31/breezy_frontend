@@ -21,6 +21,7 @@ const ChatPage = ({
     const [socket, setSocket] = useState(null);
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isFetchingReport, setIsFetchingReport] = useState(false);
 
     const fetchReport = async () => {
         try {
@@ -64,9 +65,14 @@ const ChatPage = ({
     }, []);
 
     useEffect(() => {
-        if (isConversationFinished) {
-            fetchReport();
+        async function getReport() {
+            if (isConversationFinished) {
+                setIsFetchingReport(true);
+                await fetchReport();
+                setIsFetchingReport(false);
+            }
         }
+        getReport();
     }, [isConversationFinished]);
 
     const getMicrophone = async () => {
@@ -248,7 +254,7 @@ const ChatPage = ({
                             }}
                             placeholder="Type your message..."
                         /> */}
-                        {!loading && (
+                        {!loading && !isFetchingReport && (
                             <>
                                 {/* <button
                                     onClick={sendMessage}
@@ -312,9 +318,27 @@ const ChatPage = ({
                             flexDirection: "column",
                         }}
                     >
-                        <p style={{ fontWeight: "600", marginBottom: "10px" }}>
-                            Conversation Finished!
-                        </p>
+                        {isFetchingReport && (
+                            <p
+                                style={{
+                                    fontWeight: "600",
+                                    marginBottom: "10px",
+                                }}
+                            >
+                                Conversation finished, please wait for your
+                                report to generate!
+                            </p>
+                        )}
+                        {!isFetchingReport && (
+                            <p
+                                style={{
+                                    fontWeight: "600",
+                                    marginBottom: "10px",
+                                }}
+                            >
+                                Conversation finished! You may leave this page!
+                            </p>
+                        )}
                     </div>
                 )}
             </div>

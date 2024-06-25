@@ -1,27 +1,24 @@
 import React, { useState, useEffect } from "react";
 
-const FormPage = ({
+const BinaryFormPage = ({
     stageNumber,
     setStageNumber,
     question,
     handleSubmission,
     submitLabel,
-    inputs,
 }) => {
-    const [input, setInput] = useState(Array(inputs.length).fill(""));
+    const [input, setInput] = useState("");
 
     useEffect(() => {
-        setInput(Array(inputs.length).fill(""));
-    }, [stageNumber, inputs.length]);
+        setInput("");
+    }, [stageNumber]);
 
-    const handleInputChange = (index, value) => {
-        const newInput = [...input];
-        newInput[index] = value;
-        setInput(newInput);
+    const handleButtonClick = (value) => {
+        setInput(value);
     };
 
-    const isAnyInputEmpty = () => {
-        return input.some((value) => value.trim() === "");
+    const isInputEmpty = () => {
+        return input.trim() === "";
     };
 
     return (
@@ -102,7 +99,12 @@ const FormPage = ({
                     src="./Logo.svg"
                     alt="Logo"
                 />
-                <p style={{ fontSize: "18px", fontWeight: "400" }}>
+                <p
+                    style={{
+                        fontSize: "18px",
+                        fontWeight: "400",
+                    }}
+                >
                     {question}
                 </p>
                 <div
@@ -112,44 +114,42 @@ const FormPage = ({
                         gap: "30px",
                     }}
                 >
-                    {inputs.map((input, index) => (
-                        <div
-                            key={`${index}-${stageNumber}`}
-                            style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                flex: 1,
-                            }}
-                        >
-                            <input
-                                style={{
-                                    height: "28px",
-                                    width: "100%",
-                                    borderTop: "none",
-                                    borderLeft: "none",
-                                    borderRight: "none",
-                                    borderBottom: "1px solid",
-                                    fontSize: "18px",
-                                    borderRadius: "0px",
-                                }}
-                                name={input.inputLabel}
-                                onChange={(e) =>
-                                    handleInputChange(index, e.target.value)
-                                }
-                                type={input.inputType}
-                                value={input[index]}
-                            />
-                            <p
-                                style={{
-                                    marginTop: "0px",
-                                    marginLeft: "2px",
-                                    fontSize: "12px",
-                                }}
-                            >
-                                {input.inputLabel}
-                            </p>
-                        </div>
-                    ))}
+                    <button
+                        className="hoverButtonYN"
+                        onClick={() => handleButtonClick("yes")}
+                        style={{
+                            height: "40px",
+                            width: "100px",
+                            borderRadius: "5px",
+                            backgroundColor:
+                                input === "yes" ? "#2e9ee8" : "#fff",
+                            border: "1px solid #2e9ee8",
+                            color: input === "yes" ? "#fff" : "#2e9ee8",
+                            fontSize: "18px",
+                            cursor: "pointer",
+                            transition: "background-color 0.3s, color 0.3s",
+                        }}
+                    >
+                        Yes
+                    </button>
+                    <button
+                        className="hoverButtonYN"
+                        onClick={() => handleButtonClick("no")}
+                        style={{
+                            height: "40px",
+                            width: "100px",
+                            borderRadius: "5px",
+                            backgroundColor:
+                                input === "no" ? "#2e9ee8" : "#fff",
+                            border: "1px solid #2e9ee8",
+                            color: input === "no" ? "#fff" : "#2e9ee8",
+                            fontSize: "18px",
+                            cursor: "pointer",
+                            transition: "background-color 0.3s, color 0.3s",
+                        }}
+                    >
+                        No
+                    </button>
                 </div>
             </div>
             <div
@@ -163,8 +163,8 @@ const FormPage = ({
             >
                 <button
                     onClick={() => {
-                        if (!isAnyInputEmpty()) {
-                            handleSubmission(input.join(" "), stageNumber);
+                        if (!isInputEmpty()) {
+                            handleSubmission(input, stageNumber);
                             if (stageNumber !== 12) {
                                 setStageNumber(stageNumber + 1);
                             }
@@ -189,4 +189,4 @@ const FormPage = ({
     );
 };
 
-export default FormPage;
+export default BinaryFormPage;

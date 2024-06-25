@@ -234,7 +234,7 @@ const ResponsiveFormPage = ({
                                     stageNumber
                                 );
                             }
-                            if (stageNumber !== 7) {
+                            if (stageNumber !== 12) {
                                 setStageNumber(stageNumber + 1);
                             }
                         }
