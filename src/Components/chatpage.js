@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -22,6 +22,7 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
+    const chatHistoryRef = useRef(null); // Create a ref for the chat history container
 
     const fetchReport = async () => {
         try {
@@ -74,6 +75,12 @@ const ChatPage = ({
         }
         getReport();
     }, [isConversationFinished]);
+
+    useEffect(() => {
+        if (chatHistoryRef.current) {
+            chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+        }
+    }, [chatHistory]); // Scroll to bottom whenever chat history updates
 
     const getMicrophone = async () => {
         try {
@@ -193,8 +200,11 @@ const ChatPage = ({
             >
                 <div
                     className="chat-history"
+                    ref={chatHistoryRef} // Assign the ref to the chat history container
                     style={{
                         height: "100%",
+                        width: "100%",
+                        overflowY: "auto",
                         border: "1px solid #94d1f2",
                         borderRadius: "10px 0px 0px 10px",
                     }}
@@ -233,46 +243,8 @@ const ChatPage = ({
                             alignItems: "center",
                         }}
                     >
-                        {/* <input
-                            style={{
-                                height: "28px",
-                                width: "60%",
-                                borderTop: "none",
-                                borderLeft: "none",
-                                borderRight: "none",
-                                borderBottom: "1px solid",
-                                fontSize: "18px",
-                                marginRight: "20px",
-                                borderRadius: "0px",
-                            }}
-                            type="text"
-                            value={userMessage}
-                            onChange={(e) => setUserMessage(e.target.value)}
-                            onKeyDown={(event) => {
-                                if (event.key === "Enter") {
-                                    sendMessage();
-                                }
-                            }}
-                            placeholder="Type your message..."
-                        /> */}
                         {!loading && !isFetchingReport && (
                             <>
-                                {/* <button
-                                    onClick={sendMessage}
-                                    style={{
-                                        borderColor: "#65C6FF",
-                                        color: "#000000",
-                                        borderRadius: "20px",
-                                        padding: "10px 20px",
-                                        border: "1px solid",
-                                        backgroundColor: "#94d1f2",
-                                        fontSize: "12px",
-                                        fontWeight: "600",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    Send
-                                </button> */}
                                 <button
                                     style={{
                                         borderColor: "#65C6FF",
