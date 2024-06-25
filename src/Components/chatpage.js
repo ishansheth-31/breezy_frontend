@@ -45,6 +45,12 @@ const ChatPage = ({
         }
     };
 
+    const playAudioFromUrl = (audioUrl) => {
+        const audio = new Audio(audioUrl);
+        audio.play().catch(error => console.error('Error playing the audio:', error));
+    };
+    
+
     useEffect(() => {
         const socketIo = io(
             "https://breezy-backend-de177311f71b.herokuapp.com"
@@ -55,22 +61,34 @@ const ChatPage = ({
             setTranscription(data.transcription);
         });
 
-        socketIo.on("transcription_response", (data) => {
+        socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
+        
             const options = {
                 method: 'POST',
                 headers: {
-                  'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
-                  'Content-Type': 'application/json'
+                    'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
+                    'Content-Type': 'application/json'
                 },
-                body: `{"text":${response},"voice_settings":{"stability":-1,"similarity_boost":0}}`
-              };
-              
-              fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options)
-                .then(response => response.json())
-                .then(response => console.log(response))
-                .catch(err => console.error(err));
-
+                body: JSON.stringify({
+                    text: response,
+                    voice_settings: {
+                        stability: 1,
+                        similarity_boost: 0
+                    }
+                })
+            };
+            
+            try {
+                const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
+                const audioData = await response.json();
+                if (audioData && audioData.audioUrl) {
+                    playAudioFromUrl(audioData.audioUrl);
+                }
+            } catch (err) {
+                console.error('Error with TTS API:', err);
+            }
+        
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
@@ -80,6 +98,7 @@ const ChatPage = ({
             setIsProcessing(false);
             setLoading(false); // Set loading to false after transcription response is received
         });
+        
 
         return () => {
             socketIo.disconnect();
