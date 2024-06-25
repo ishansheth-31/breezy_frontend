@@ -81,12 +81,19 @@ const ChatPage = ({
             
             try {
                 const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
-                if (!apiResponse.ok) throw new Error('API response not OK');
+                const responseBody = await apiResponse.text(); // Get the response as text
+                console.log('API Response Status:', apiResponse.status);
+                console.log('API Response Body:', responseBody);
+            
+                if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
+                
+                // Attempt to parse the response as JSON only if the content type is correct
                 const contentType = apiResponse.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     throw new TypeError("Oops, we haven't got JSON!");
                 }
-                const audioData = await apiResponse.json();
+            
+                const audioData = JSON.parse(responseBody); // Parse the text response as JSON
                 if (audioData && audioData.audioUrl) {
                     playAudioFromUrl(audioData.audioUrl);
                 } else {
@@ -95,6 +102,7 @@ const ChatPage = ({
             } catch (err) {
                 console.error('Error with TTS API:', err);
             }
+            
             
         
             setChatHistory((prevHistory) => [
