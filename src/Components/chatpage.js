@@ -45,11 +45,18 @@ const ChatPage = ({
         }
     };
 
+    const [isReady, setIsReady] = useState(false);
+
     useEffect(() => {
         const socketIo = io(
             "https://breezy-backend-de177311f71b.herokuapp.com"
         );
         setSocket(socketIo);
+
+        socketIo.on("status", (data) => {
+            setIsReady(data.is_ready);
+            setLoading(!data.is_ready);  // Optionally control the loading state
+        });
 
         socketIo.on("transcription_update", (data) => {
             setTranscription(data.transcription);
@@ -215,6 +222,14 @@ const ChatPage = ({
                         </div>
                     ))}
                 </div>
+            </div>
+            <div>
+                {!isReady && <CircularProgress />}  // Show progress when not ready
+                {isReady && (
+                    <button onClick={handleStartStop}>
+                        {isRecording ? <StopIcon /> : <KeyboardVoiceIcon />}
+                    </button>
+                )}
             </div>
             <div
                 style={{
