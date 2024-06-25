@@ -67,9 +67,11 @@ const EndPage = ({
                     <img
                         src="/breezymedtutorial.jpg"
                         alt=""
-                        height="100%"
-                        width="atuo"
-                        style={{ borderRadius: "10px" }}
+                        style={{
+                            borderRadius: "10px",
+                            maxHeight: "100%",
+                            maxWidth: "auto",
+                        }}
                     />
                 </div>
                 <p
