@@ -72,17 +72,6 @@ const ChatPage = ({
         };
     }, []);
 
-    useEffect(() => {
-        async function getReport() {
-            if (isConversationFinished) {
-                setIsFetchingReport(true);
-                await fetchReport();
-                setIsFetchingReport(false);
-            }
-        }
-        getReport();
-    }, [isConversationFinished]);
-
     const getMicrophone = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
@@ -293,6 +282,7 @@ const ChatPage = ({
                             justifyContent: "center",
                             alignItems: "center",
                             flexDirection: "column",
+                            textAlign: "center",
                         }}
                     >
                         {isFetchingReport && (
