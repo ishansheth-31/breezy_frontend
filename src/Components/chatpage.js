@@ -12,6 +12,15 @@ const ChatPage = ({
     chatHistory,
     setChatHistory,
 }) => {
+    const chatHistoryRef = useRef(null); // Create a ref for the chat history container
+
+    useEffect(() => {
+        if (chatHistoryRef.current) {
+            chatHistoryRef.current.scrollTop =
+                chatHistoryRef.current.scrollHeight;
+        }
+    }, [chatHistory]); // Scroll to bottom whenever chat history updates
+
     const [userMessage, setUserMessage] = useState("");
     const [isConversationFinished, setIsConversationFinished] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
@@ -22,19 +31,18 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
-    const chatHistoryRef = useRef(null); // Create a ref for the chat history container
 
     const fetchReport = async () => {
         try {
-            setLoading(true);
+            setLoading(true); // Set loading to true when fetching the report
             const response = await axios.get(
                 `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
             );
             console.log("Report:", response.data);
-            setLoading(false);
         } catch (error) {
             console.error("Error fetching report:", error);
-            setLoading(false);
+        } finally {
+            setLoading(false); // Set loading to false after fetching the report
         }
     };
 
@@ -56,8 +64,8 @@ const ChatPage = ({
                 { role: "assistant", content: response },
             ]);
             setIsConversationFinished(finished);
-            setLoading(false);
             setIsProcessing(false);
+            setLoading(false); // Set loading to false after transcription response is received
         });
 
         return () => {
@@ -76,19 +84,12 @@ const ChatPage = ({
         getReport();
     }, [isConversationFinished]);
 
-    useEffect(() => {
-        if (chatHistoryRef.current) {
-            chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
-        }
-    }, [chatHistory]); // Scroll to bottom whenever chat history updates
-
     const getMicrophone = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
             });
-            const mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 'audio/webm';
-            const mic = new MediaRecorder(stream, { mimeType : mimeType });
+            const mic = new MediaRecorder(stream, { mimeType: "audio/webm" });
             mic.ondataavailable = async (event) => {
                 if (event.data.size > 0 && socket) {
                     socket.emit("audio_stream", event.data);
@@ -108,21 +109,19 @@ const ChatPage = ({
     };
 
     const startRecording = async () => {
-        setIsProcessing(true);
         const mic = await getMicrophone();
         setMicrophone(mic);
         mic.start(1000);
-        setIsProcessing(false);
     };
 
     const stopRecording = () => {
         setIsProcessing(true);
+        setLoading(true); // Set loading to true when stopping the recording
         if (microphone) {
             microphone.stop();
             microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
         }
-        setIsProcessing(false);
         socket.emit("toggle_transcription", { action: "stop", patient_id });
     };
 
