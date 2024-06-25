@@ -57,6 +57,20 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", (data) => {
             const { user_message, response, finished } = data;
+            const options = {
+                method: 'POST',
+                headers: {
+                  'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
+                  'Content-Type': 'application/json'
+                },
+                body: `{"text":${response},"voice_settings":{"stability":-1,"similarity_boost":0}}`
+              };
+              
+              fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options)
+                .then(response => response.json())
+                .then(response => console.log(response))
+                .catch(err => console.error(err));
+
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
