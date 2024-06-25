@@ -20,6 +20,7 @@ const ChatPage = ({
                 chatHistoryRef.current.scrollHeight;
         }
     }, [chatHistory]); // Scroll to bottom whenever chat history updates
+
     const [isConversationFinished, setIsConversationFinished] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [transcription, setTranscription] = useState(
@@ -87,7 +88,10 @@ const ChatPage = ({
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
             });
-            const mic = new MediaRecorder(stream, { mimeType: "audio/webm" });
+            const mimeType = MediaRecorder.isTypeSupported("audio/mp4")
+                ? "audio/mp4"
+                : "audio/webm";
+            const mic = new MediaRecorder(stream, { mimeType: mimeType });
             mic.ondataavailable = async (event) => {
                 if (event.data.size > 0 && socket) {
                     socket.emit("audio_stream", event.data);
@@ -107,9 +111,11 @@ const ChatPage = ({
     };
 
     const startRecording = async () => {
+        setIsProcessing(true);
         const mic = await getMicrophone();
         setMicrophone(mic);
         mic.start(1000);
+        setIsProcessing(false);
     };
 
     const stopRecording = () => {
@@ -120,6 +126,7 @@ const ChatPage = ({
             microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
         }
+        setIsProcessing(false);
         socket.emit("toggle_transcription", { action: "stop", patient_id });
     };
 
