@@ -80,10 +80,12 @@ const ChatPage = ({
             };
             
             try {
-                const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
-                const audioData = await response.json();
+                const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
+                const audioData = await apiResponse.json();
                 if (audioData && audioData.audioUrl) {
                     playAudioFromUrl(audioData.audioUrl);
+                } else {
+                    console.error('No audio URL received:', audioData);
                 }
             } catch (err) {
                 console.error('Error with TTS API:', err);
