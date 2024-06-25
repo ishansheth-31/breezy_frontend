@@ -20,8 +20,6 @@ const ChatPage = ({
                 chatHistoryRef.current.scrollHeight;
         }
     }, [chatHistory]); // Scroll to bottom whenever chat history updates
-
-    const [userMessage, setUserMessage] = useState("");
     const [isConversationFinished, setIsConversationFinished] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [transcription, setTranscription] = useState(

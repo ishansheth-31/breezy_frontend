@@ -5,6 +5,7 @@ import FormPage from "./Components/formpage";
 import ChatPage from "./Components/chatpage";
 import MedFormPage from "./Components/responsiveformpage";
 import BinaryFormPage from "./Components/binaryformpage";
+import EndPage from "./Components/endpage";
 
 function App() {
     const pathParts = window.location.href.split("/");
@@ -207,15 +208,14 @@ function App() {
                     </>
                 )) ||
                 (stageNumber === 12 && (
-                    <FormPage
+                    <EndPage
                         stageNumber={stageNumber}
                         setStageNumber={setStageNumber}
                         question={
-                            "Thank you. Now you will begin a quick 5-minute conversation with our virtual nurse, Ava. This will save you the wait at the doctor’s office."
+                            "Thank you for the information so far! You will now begin a quick conversation with Ava, your virtual nurse. This will be a verbal conversation just as you may have with any other nurse."
                         }
                         handleSubmission={startConversation}
                         submitLabel={"Start Conversation"}
-                        inputs={[]}
                     />
                 )) ||
                 (stageNumber >= 6 && stageNumber < 12 && (

@@ -139,7 +139,16 @@ const ResponsiveFormPage = ({
                     alt="Logo"
                 />
                 <p style={{ fontSize: "18px", fontWeight: "400" }}>
-                    {question}
+                    {question}{" "}
+                    <span
+                        style={{
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            color: "#65C6FF",
+                        }}
+                    >
+                        (click + to add)
+                    </span>
                 </p>
                 <div
                     style={{
