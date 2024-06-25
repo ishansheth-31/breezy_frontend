@@ -70,7 +70,7 @@ const EndPage = ({
                         style={{
                             borderRadius: "10px",
                             maxHeight: "100%",
-                            maxWidth: "auto",
+                            maxWidth: "100%",
                         }}
                     />
                 </div>
