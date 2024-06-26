@@ -30,6 +30,7 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
+    const [latestResponse, setLatestResponse] = useState(""); // State to store the latest response
 
     const fetchReport = async () => {
         try {
@@ -67,7 +68,7 @@ const ChatPage = ({
         };
 
         try {
-            const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
+            const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pFZP5JQG7iQjIQuC4Bku/stream', options);
             if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
             
             const contentType = apiResponse.headers.get('content-type');
@@ -107,6 +108,8 @@ const ChatPage = ({
             setIsConversationFinished(finished);
             setIsProcessing(false);
             setLoading(false); // Set loading to false after transcription response is received
+
+            setLatestResponse(response); // Store the latest response
         });
 
         return () => {
@@ -159,8 +162,8 @@ const ChatPage = ({
         }
         setIsProcessing(false);
         socket.emit("toggle_transcription", { action: "stop", patient_id });
-        // Fetch and play the TTS audio response
-        fetchAndPlayAudio(transcription);
+        // Fetch and play the TTS audio response using the latest response
+        fetchAndPlayAudio(latestResponse);
     };
 
     useEffect(() => {
