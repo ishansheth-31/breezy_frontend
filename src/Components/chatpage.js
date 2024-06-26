@@ -55,8 +55,17 @@ const ChatPage = ({
     };
 
     const playAudioFromUrl = (audioUrl) => {
-        const audio = new Audio(audioUrl);
-        audio.play().catch(error => console.error('Error playing the audio:', error));
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        fetch(audioUrl)
+          .then(response => response.arrayBuffer())
+          .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+          .then(audioBuffer => {
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(audioContext.destination);
+            source.start(0);
+          })
+          .catch(error => console.error('Error playing the audio:', error));
     };
     
 
