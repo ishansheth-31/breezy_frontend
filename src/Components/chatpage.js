@@ -30,8 +30,6 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
-    const [responseReady, setResponseReady] = useState(false);
-
 
     const fetchReport = async () => {
         try {
@@ -100,7 +98,8 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            setResponseReady(true);  // Reset the response ready state
+            await fetchAndPlayAudio(response);
+
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
@@ -108,15 +107,10 @@ const ChatPage = ({
             ]);
             setIsConversationFinished(finished);
             setIsProcessing(false);
+             // Set loading to false after transcription response is received
+
+            // Fetch and play the TTS audio response immediately
             setLoading(false);
-            if (responseReady) {
-                fetchAndPlayAudio('testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again.');
-            }
-            if (response.length > 0) {
-                fetchAndPlayAudio('testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again.');
-            }
-            
-        
         });
 
         return () => {
@@ -364,5 +358,3 @@ const ChatPage = ({
         </div>
     );
 };
-
-export default ChatPage;
