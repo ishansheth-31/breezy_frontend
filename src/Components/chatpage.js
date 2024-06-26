@@ -52,7 +52,7 @@ const ChatPage = ({
     };
 
     const fetchAndPlayAudio = async (responseText) => {
-        const options = {
+    const options = {
             method: 'POST',
             headers: {
                 'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
@@ -68,7 +68,7 @@ const ChatPage = ({
         };
 
         try {
-            const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pFZP5JQG7iQjIQuC4Bku/stream', options);
+            const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
             if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
             
             const contentType = apiResponse.headers.get('content-type');
@@ -162,7 +162,8 @@ const ChatPage = ({
         }
         setIsProcessing(false);
         socket.emit("toggle_transcription", { action: "stop", patient_id });
-        // Fetch and play the TTS audio response using the latest response
+        const { user_message, response, finished } = data;
+        setLatestResponse(response);
         fetchAndPlayAudio(latestResponse);
     };
 
