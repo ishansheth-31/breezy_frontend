@@ -98,7 +98,7 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            fetchAndPlayAudio(response);
+            await fetchAndPlayAudio(response);
 
             setChatHistory((prevHistory) => [
                 ...prevHistory,
