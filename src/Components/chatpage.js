@@ -45,10 +45,13 @@ const ChatPage = ({
         }
     };
 
-    const playAudioFromUrl = (audioUrl) => {
-        const audio = new Audio(audioUrl);
-        audio.play().catch(error => console.error('Error playing the audio:', error));
-    };
+    const splitTextIntoChunks = (text, chunkSize = 500) => {
+        const chunks = [];
+        for (let i = 0; i < text.length; i += chunkSize) {
+            chunks.push(text.substring(i, i + chunkSize));
+        }
+        return chunks;
+    };    
 
     const fetchAndPlayAudio = async (responseText) => {
         const options = {
@@ -56,35 +59,54 @@ const ChatPage = ({
             headers: {
                 'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: responseText,
-                voice_settings: {
-                    stability: 1,
-                    similarity_boost: 0
-                }
-            })
+            }
         };
     
-        try {
-            const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
-            if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
-            
-            const contentType = apiResponse.headers.get('content-type');
-            if (contentType && contentType.startsWith('audio/')) {
-                const blob = await apiResponse.blob();
-                const url = URL.createObjectURL(blob);
-                playAudioFromUrl(url);
-            } else if (contentType && contentType.includes('application/json')) {
-                const json = await apiResponse.json();
-                console.error('Expected audio, got JSON:', json);
-            } else {
-                throw new Error("Unexpected content type: " + contentType);
+        const textChunks = splitTextIntoChunks(responseText);
+    
+        for (const chunk of textChunks) {
+            const requestOptions = {
+                ...options,
+                body: JSON.stringify({
+                    text: chunk,
+                    voice_settings: {
+                        stability: 1,
+                        similarity_boost: 0
+                    }
+                })
+            };
+    
+            try {
+                const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', requestOptions);
+                if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
+    
+                const contentType = apiResponse.headers.get('content-type');
+                if (contentType && contentType.startsWith('audio/')) {
+                    const blob = await apiResponse.blob();
+                    const url = URL.createObjectURL(blob);
+                    await playAudioFromUrl(url); // Ensure the audio plays sequentially
+                } else if (contentType && contentType.includes('application/json')) {
+                    const json = await apiResponse.json();
+                    console.error('Expected audio, got JSON:', json);
+                } else {
+                    throw new Error("Unexpected content type: " + contentType);
+                }
+            } catch (err) {
+                console.error('Error fetching TTS data:', err);
             }
-        } catch (err) {
-            console.error('Error fetching TTS data:', err);
         }
     };
+    
+    const playAudioFromUrl = (audioUrl) => {
+        return new Promise((resolve, reject) => {
+            const audio = new Audio(audioUrl);
+            audio.play().then(resolve).catch(error => {
+                console.error('Error playing the audio:', error);
+                reject(error);
+            });
+        });
+    };
+    
 
 
     useEffect(() => {
@@ -106,7 +128,7 @@ const ChatPage = ({
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
-            await fetchAndPlayAudio('Fuckkkkkkkkkk its still not working.');
+            await fetchAndPlayAudio('Fuckkkkkkkkkk its still not working this is so cooked jesus christ i hate this. but i will keep looking around for more solutions because i know we can get this done easily this would be massive we can clutch this and get it done i woul dbe. so happy bruh. the hawks are first on the clock.');
             setIsProcessing(false);
             setLoading(false);
             setIsConversationFinished(finished);
