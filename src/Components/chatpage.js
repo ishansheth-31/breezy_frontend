@@ -79,25 +79,6 @@ const ChatPage = ({
                 })
             };
             
-            try {
-                const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
-                if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
-            
-                const contentType = apiResponse.headers.get('content-type');
-                if (contentType && contentType.startsWith('audio/')) {
-                    const blob = await apiResponse.blob();
-                    const url = URL.createObjectURL(blob);
-                    playAudioFromUrl(url);
-                } else if (contentType && contentType.includes('application/json')) {
-                    const json = await apiResponse.json();
-                    console.error('Expected audio, got JSON:', json);
-                } else {
-                    throw new Error("Unexpected content type: " + contentType);
-                }
-            } catch (err) {
-                console.error('Error fetching TTS data:', err);
-            }
-            
             
             
         
@@ -304,6 +285,24 @@ const ChatPage = ({
                                             startRecording();
                                         } else {
                                             stopRecording();
+                                            try {
+                                                const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
+                                                if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
+                                            
+                                                const contentType = apiResponse.headers.get('content-type');
+                                                if (contentType && contentType.startsWith('audio/')) {
+                                                    const blob = await apiResponse.blob();
+                                                    const url = URL.createObjectURL(blob);
+                                                    playAudioFromUrl(url);
+                                                } else if (contentType && contentType.includes('application/json')) {
+                                                    const json = await apiResponse.json();
+                                                    console.error('Expected audio, got JSON:', json);
+                                                } else {
+                                                    throw new Error("Unexpected content type: " + contentType);
+                                                }
+                                            } catch (err) {
+                                                console.error('Error fetching TTS data:', err);
+                                            }
                                         }
                                     }}
                                     disabled={isProcessing}
