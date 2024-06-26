@@ -100,7 +100,9 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            setResponseReady(true);  // Reset the response ready state
+
+            await fetchAndPlayAudio(response);
+
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
@@ -108,16 +110,10 @@ const ChatPage = ({
             ]);
             setIsConversationFinished(finished);
             setIsProcessing(false);
+             // Set loading to false after transcription response is received
+
+            // Fetch and play the TTS audio response immediately
             setLoading(false);
-            if (responseReady) {
-                fetchAndPlayAudio(response);
-            }
-            if (response.length > 0) {
-                fetchAndPlayAudio('testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again.');
-                setResponseReady(false);
-            }
-            
-        
         });
 
         return () => {
@@ -168,8 +164,20 @@ const ChatPage = ({
             microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
         }
-        setIsProcessing(false);
         socket.emit("toggle_transcription", { action: "stop", patient_id });
+
+        const checkResponseAndPlayAudio = setInterval(() => {
+            if (responseReady) {
+                clearInterval(checkResponseAndPlayAudio);
+                const lastMessage = chatHistory[chatHistory.length - 1];
+                if (lastMessage.role === "assistant") {
+                    fetchAndPlayAudio(lastMessage.content);
+                    setResponseReady(false);  // Reset after playing
+                }
+            }
+        }, 100); // Check every 100ms if the response is ready
+        setIsProcessing(false);
+    
     };
 
     useEffect(() => {
