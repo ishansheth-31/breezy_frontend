@@ -100,7 +100,7 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            await setResponseReady(false);  // Reset the response ready state
+            await setResponseReady(true);  // Reset the response ready state
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
@@ -109,7 +109,7 @@ const ChatPage = ({
             setIsConversationFinished(finished);
             setIsProcessing(false);
             setLoading(false);
-            setResponseReady(true);  // Set response as ready to play audio
+            fetchAndPlayAudio('testing testing testing');
             if (responseReady && response.length > 0) {
                 fetchAndPlayAudio(response);
                 setResponseReady(false);
