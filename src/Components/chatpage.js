@@ -128,7 +128,7 @@ const ChatPage = ({
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
-            await fetchAndPlayAudio('this is so cooked jesus christ i hate this. but i will keep looking around for more solutions because i know we can get this done easily this would be massive we can clutch this and get it done i woul dbe. so happy bruh. the hawks are first on the clock.');
+            await fetchAndPlayAudio(response);
             setIsProcessing(false);
             setLoading(false);
             setIsConversationFinished(finished);
