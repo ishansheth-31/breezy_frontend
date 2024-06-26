@@ -110,7 +110,7 @@ const ChatPage = ({
             setIsProcessing(false);
             setLoading(false);
             fetchAndPlayAudio('testing testing testing');
-            if (responseReady && response.length > 0) {
+            if (response.length > 0) {
                 fetchAndPlayAudio(response);
                 setResponseReady(false);
             }
