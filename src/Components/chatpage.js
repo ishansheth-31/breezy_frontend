@@ -50,8 +50,8 @@ const ChatPage = ({
         audio.play().catch(error => console.error('Error playing the audio:', error));
     };
 
-    const fetchAndPlayAudio = async (responseText, retryCount = 0) => {
-        const maxRetries = 3;
+    const fetchAndPlayAudio = async (responseText) => {
+        console.log("fetchAndPlayAudio called with responseText:", responseText); // Logging statement
         const options = {
             method: 'POST',
             headers: {
@@ -75,6 +75,7 @@ const ChatPage = ({
             if (contentType && contentType.startsWith('audio/')) {
                 const blob = await apiResponse.blob();
                 const url = URL.createObjectURL(blob);
+                console.log("Playing audio from URL:", url); // Logging statement
                 playAudioFromUrl(url);
             } else if (contentType && contentType.includes('application/json')) {
                 const json = await apiResponse.json();
@@ -84,10 +85,6 @@ const ChatPage = ({
             }
         } catch (err) {
             console.error('Error fetching TTS data:', err);
-            if (retryCount < maxRetries) {
-                console.log(`Retrying TTS fetch... Attempt ${retryCount + 1}`);
-                fetchAndPlayAudio(responseText, retryCount + 1);
-            }
         }
     };
 
@@ -113,8 +110,8 @@ const ChatPage = ({
             setIsProcessing(false);
             setLoading(false); // Set loading to false after transcription response is received
 
-            // Fetch and play the TTS audio response immediately
-            fetchAndPlayAudio(response);
+            console.log("Received transcription response:", response); // Logging statement
+            fetchAndPlayAudio(response); // Play the TTS audio immediately after receiving the response
         });
 
         return () => {
