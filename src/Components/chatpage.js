@@ -30,7 +30,6 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
-    const [latestResponse, setLatestResponse] = useState(""); // State to store the latest response
 
     const fetchReport = async () => {
         try {
@@ -52,7 +51,7 @@ const ChatPage = ({
     };
 
     const fetchAndPlayAudio = async (responseText) => {
-    const options = {
+        const options = {
             method: 'POST',
             headers: {
                 'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
@@ -109,7 +108,8 @@ const ChatPage = ({
             setIsProcessing(false);
             setLoading(false); // Set loading to false after transcription response is received
 
-            setLatestResponse(response); // Store the latest response
+            // Fetch and play the TTS audio response immediately
+            fetchAndPlayAudio(response);
         });
 
         return () => {
@@ -152,7 +152,7 @@ const ChatPage = ({
         setIsProcessing(false);
     };
 
-    const stopRecording = (data) => {
+    const stopRecording = () => {
         setIsProcessing(true);
         setLoading(true); // Set loading to true when stopping the recording
         if (microphone) {
@@ -162,9 +162,6 @@ const ChatPage = ({
         }
         setIsProcessing(false);
         socket.emit("toggle_transcription", { action: "stop", patient_id });
-        const { user_message, response, finished } = data;
-        setLatestResponse(response);
-        fetchAndPlayAudio(latestResponse);
     };
 
     useEffect(() => {
@@ -306,7 +303,7 @@ const ChatPage = ({
                                             );
                                             startRecording();
                                         } else {
-                                            stopRecording(data);
+                                            stopRecording();
                                         }
                                     }}
                                     disabled={isProcessing}
