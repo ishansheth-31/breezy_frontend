@@ -98,6 +98,7 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
+            fetchAndPlayAudio(response);
 
             setChatHistory((prevHistory) => [
                 ...prevHistory,
@@ -109,7 +110,6 @@ const ChatPage = ({
              // Set loading to false after transcription response is received
 
             // Fetch and play the TTS audio response immediately
-            fetchAndPlayAudio(response);
             setLoading(false);
         });
 
