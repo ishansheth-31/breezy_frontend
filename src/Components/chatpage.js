@@ -109,7 +109,7 @@ const ChatPage = ({
             setIsConversationFinished(finished);
             setIsProcessing(false);
             setLoading(false);
-            fetchAndPlayAudio('testing testing testing');
+            fetchAndPlayAudio(response);
             if (responseReady) {
                 fetchAndPlayAudio('testing testing again');
             }
