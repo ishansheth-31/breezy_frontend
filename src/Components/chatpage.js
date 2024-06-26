@@ -156,29 +156,29 @@ const ChatPage = ({
         setIsProcessing(false);
     };
 
-    const stopRecording = () => {
+    const stopRecording = async () => {
         setIsProcessing(true);
-        setLoading(true); // Set loading to true when stopping the recording
+        setLoading(true); // Indicate processing and waiting for the response
         if (microphone) {
             microphone.stop();
             microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
         }
         socket.emit("toggle_transcription", { action: "stop", patient_id });
-
-        const checkResponseAndPlayAudio = setInterval(() => {
-            if (responseReady) {
-                clearInterval(checkResponseAndPlayAudio);
-                const lastMessage = chatHistory[chatHistory.length - 1];
-                if (lastMessage.role === "assistant") {
-                    fetchAndPlayAudio(lastMessage.content);
-                    setResponseReady(false);  // Reset after playing
-                }
-            }
-        }, 100); // Check every 100ms if the response is ready
-        setIsProcessing(false);
     
+        // No need to use setInterval, handle response directly in socket.on('transcription_response')
+        setIsProcessing(false);
     };
+    
+    // Adjust socket.on('transcription_response') to handle playback
+    socket.on('transcription_response', (data) => {
+        const { response } = data;
+        if (response) {
+            fetchAndPlayAudio(response);
+            setResponseReady(false); // Reset after playing
+        }
+    });
+    
 
     useEffect(() => {
         if (socket) {
