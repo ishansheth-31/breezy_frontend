@@ -30,6 +30,8 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
+    const [responseReady, setResponseReady] = useState(false);
+
 
     const fetchReport = async () => {
         try {
@@ -98,8 +100,7 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            await fetchAndPlayAudio(response);
-
+            await setResponseReady(false);  // Reset the response ready state
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
@@ -107,10 +108,16 @@ const ChatPage = ({
             ]);
             setIsConversationFinished(finished);
             setIsProcessing(false);
-             // Set loading to false after transcription response is received
-
-            // Fetch and play the TTS audio response immediately
             setLoading(false);
+            setResponseReady(true);  // Set response as ready to play audio
+            if (responseReady && response.length > 0) {
+                const lastMessage = chatHistory[chatHistory.length - 1];
+                if (lastMessage.role === "assistant") {
+                    fetchAndPlayAudio(lastMessage.content);
+                }
+                setResponseReady(false);  // Reset after playing
+            }
+        
         });
 
         return () => {
