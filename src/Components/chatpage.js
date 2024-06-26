@@ -98,13 +98,14 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            await fetchAndPlayAudio(response);
+            
 
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
+            await fetchAndPlayAudio(response);
             setIsConversationFinished(finished);
             setIsProcessing(false);
              // Set loading to false after transcription response is received
