@@ -50,7 +50,8 @@ const ChatPage = ({
         audio.play().catch(error => console.error('Error playing the audio:', error));
     };
 
-    const fetchAndPlayAudio = async (responseText) => {
+    const fetchAndPlayAudio = async (responseText, retryCount = 0) => {
+        const maxRetries = 3;
         const options = {
             method: 'POST',
             headers: {
@@ -83,6 +84,10 @@ const ChatPage = ({
             }
         } catch (err) {
             console.error('Error fetching TTS data:', err);
+            if (retryCount < maxRetries) {
+                console.log(`Retrying TTS fetch... Attempt ${retryCount + 1}`);
+                fetchAndPlayAudio(responseText, retryCount + 1);
+            }
         }
     };
 
