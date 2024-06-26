@@ -30,9 +30,7 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
-    const [responseText, setResponseText] = useState("");
     const [responseReady, setResponseReady] = useState(false);
-
 
 
     const fetchReport = async () => {
@@ -166,21 +164,12 @@ const ChatPage = ({
         setLoading(true); // Set loading to true when stopping the recording
         if (microphone) {
             microphone.stop();
-            microphone.stream.getTracks().forEach(track => track.stop());
+            microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
         }
-        socket.emit("toggle_transcription", { action: "stop", patient_id });
         setIsProcessing(false);
+        socket.emit("toggle_transcription", { action: "stop", patient_id });
     };
-
-    socket.on('transcription_response', (data) => {
-        const { response } = data;
-        if (response) {
-            setResponseText(response);  // Set the text to display
-            setResponseReady(true);    // Indicate that the response is ready for audio playback
-            setLoading(false);
-        }
-    });
 
     useEffect(() => {
         if (socket) {
@@ -204,13 +193,6 @@ const ChatPage = ({
             };
         }
     }, [socket]);
-
-    const playResponseAudio = () => {
-        if (responseText && responseReady) {
-            fetchAndPlayAudio(responseText);
-            setResponseReady(false);  // Reset after playing
-        }
-    };
 
     return (
         <div
@@ -329,8 +311,6 @@ const ChatPage = ({
                                             startRecording();
                                         } else {
                                             stopRecording();
-                                            playResponseAudio();
-                                            setResponseReady(false);
                                         }
                                     }}
                                     disabled={isProcessing}
