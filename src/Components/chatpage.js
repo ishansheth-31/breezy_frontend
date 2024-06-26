@@ -111,11 +111,8 @@ const ChatPage = ({
             setLoading(false);
             setResponseReady(true);  // Set response as ready to play audio
             if (responseReady && response.length > 0) {
-                const lastMessage = chatHistory[chatHistory.length - 1];
-                if (lastMessage.role === "assistant") {
-                    fetchAndPlayAudio(lastMessage.content);
-                }
-                setResponseReady(false);  // Reset after playing
+                fetchAndPlayAudio(response);
+                setResponseReady(false);
             }
         
         });
