@@ -14,15 +14,6 @@ const ChatPage = ({
 }) => {
     const chatHistoryRef = useRef(null); // Create a ref for the chat history container
 
-    const [audioUrl, setAudioUrl] = useState(null);
-
-    const playAudio = () => {
-        if (audioUrl) {
-            const audio = new Audio(audioUrl);
-            audio.play().catch(error => console.error('Error playing the audio:', error));
-        }
-    };
-
     useEffect(() => {
         if (chatHistoryRef.current) {
             chatHistoryRef.current.scrollTop =
@@ -55,17 +46,8 @@ const ChatPage = ({
     };
 
     const playAudioFromUrl = (audioUrl) => {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        fetch(audioUrl)
-          .then(response => response.arrayBuffer())
-          .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
-          .then(audioBuffer => {
-            const source = audioContext.createBufferSource();
-            source.buffer = audioBuffer;
-            source.connect(audioContext.destination);
-            source.start(0);
-          })
-          .catch(error => console.error('Error playing the audio:', error));
+        const audio = new Audio(audioUrl);
+        audio.play().catch(error => console.error('Error playing the audio:', error));
     };
     
 
@@ -96,6 +78,25 @@ const ChatPage = ({
                     }
                 })
             };
+            
+            try {
+                const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
+                if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
+            
+                const contentType = apiResponse.headers.get('content-type');
+                if (contentType && contentType.startsWith('audio/')) {
+                    const blob = await apiResponse.blob();
+                    const url = URL.createObjectURL(blob);
+                    playAudioFromUrl(url);
+                } else if (contentType && contentType.includes('application/json')) {
+                    const json = await apiResponse.json();
+                    console.error('Expected audio, got JSON:', json);
+                } else {
+                    throw new Error("Unexpected content type: " + contentType);
+                }
+            } catch (err) {
+                console.error('Error fetching TTS data:', err);
+            }
         
             setChatHistory((prevHistory) => [
                 ...prevHistory,
@@ -105,7 +106,6 @@ const ChatPage = ({
             setIsConversationFinished(finished);
             setIsProcessing(false);
             setLoading(false); // Set loading to false after transcription response is received
-            setAudioUrl(audioUrl);
         });
         
 
@@ -159,11 +159,6 @@ const ChatPage = ({
         }
         setIsProcessing(false);
         socket.emit("toggle_transcription", { action: "stop", patient_id });
-    };
-
-    const stopRecordingAndFetchAudio = () => {
-        stopRecording();
-        playAudio();
     };
 
     useEffect(() => {
@@ -305,7 +300,7 @@ const ChatPage = ({
                                             );
                                             startRecording();
                                         } else {
-                                            stopRecordingAndFetchAudio();
+                                            stopRecording();
                                         }
                                     }}
                                     disabled={isProcessing}
