@@ -49,7 +49,42 @@ const ChatPage = ({
         const audio = new Audio(audioUrl);
         audio.play().catch(error => console.error('Error playing the audio:', error));
     };
-    
+
+    const fetchAndPlayAudio = async (responseText) => {
+        const options = {
+            method: 'POST',
+            headers: {
+                'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: responseText,
+                voice_settings: {
+                    stability: 1,
+                    similarity_boost: 0
+                }
+            })
+        };
+
+        try {
+            const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
+            if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
+            
+            const contentType = apiResponse.headers.get('content-type');
+            if (contentType && contentType.startsWith('audio/')) {
+                const blob = await apiResponse.blob();
+                const url = URL.createObjectURL(blob);
+                playAudioFromUrl(url);
+            } else if (contentType && contentType.includes('application/json')) {
+                const json = await apiResponse.json();
+                console.error('Expected audio, got JSON:', json);
+            } else {
+                throw new Error("Unexpected content type: " + contentType);
+            }
+        } catch (err) {
+            console.error('Error fetching TTS data:', err);
+        }
+    };
 
     useEffect(() => {
         const socketIo = io(
@@ -63,41 +98,7 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-        
-            const options = {
-                method: 'POST',
-                headers: {
-                    'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    text: response,
-                    voice_settings: {
-                        stability: 1,
-                        similarity_boost: 0
-                    }
-                })
-            };
-            
-            try {
-                const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
-                if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
-            
-                const contentType = apiResponse.headers.get('content-type');
-                if (contentType && contentType.startsWith('audio/')) {
-                    const blob = await apiResponse.blob();
-                    const url = URL.createObjectURL(blob);
-                    playAudioFromUrl(url);
-                } else if (contentType && contentType.includes('application/json')) {
-                    const json = await apiResponse.json();
-                    console.error('Expected audio, got JSON:', json);
-                } else {
-                    throw new Error("Unexpected content type: " + contentType);
-                }
-            } catch (err) {
-                console.error('Error fetching TTS data:', err);
-            }
-        
+
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
@@ -107,7 +108,6 @@ const ChatPage = ({
             setIsProcessing(false);
             setLoading(false); // Set loading to false after transcription response is received
         });
-        
 
         return () => {
             socketIo.disconnect();
@@ -159,6 +159,8 @@ const ChatPage = ({
         }
         setIsProcessing(false);
         socket.emit("toggle_transcription", { action: "stop", patient_id });
+        // Fetch and play the TTS audio response
+        fetchAndPlayAudio(transcription);
     };
 
     useEffect(() => {
