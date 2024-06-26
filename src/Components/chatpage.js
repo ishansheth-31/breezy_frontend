@@ -105,7 +105,7 @@ const ChatPage = ({
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
-            await fetchAndPlayAudio(response);
+            fetchAndPlayAudio(response);
             setIsConversationFinished(finished);
             setIsProcessing(false);
              // Set loading to false after transcription response is received
