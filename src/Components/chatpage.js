@@ -96,7 +96,7 @@ const ChatPage = ({
             setIsConversationFinished(finished);
             setIsProcessing(false);
             setLoading(false); // Set loading to false after transcription response is received
-            setAudioUrl(audio_url);
+            setAudioUrl(audioUrl);
         });
         
 
