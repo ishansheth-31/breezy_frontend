@@ -109,13 +109,11 @@ const ChatPage = ({
             setIsConversationFinished(finished);
             setIsProcessing(false);
             setLoading(false);
-            fetchAndPlayAudio('testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again.');
             if (responseReady) {
-                fetchAndPlayAudio(response);
+                fetchAndPlayAudio('testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again.');
             }
             if (response.length > 0) {
-                fetchAndPlayAudio(response);
-                setResponseReady(false);
+                fetchAndPlayAudio('testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again.');
             }
             
         
