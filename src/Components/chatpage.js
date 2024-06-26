@@ -86,6 +86,7 @@ const ChatPage = ({
             }
         } catch (err) {
             console.error('Error fetching TTS data:', err);
+            if (retryCount < maxRetries) {
                 console.log(`Retrying TTS fetch... Attempt ${retryCount + 1}`);
                 fetchAndPlayAudio(responseText, retryCount + 1);
             }
