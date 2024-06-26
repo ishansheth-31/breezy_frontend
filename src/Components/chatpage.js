@@ -110,11 +110,14 @@ const ChatPage = ({
             setIsProcessing(false);
             setLoading(false);
             fetchAndPlayAudio('testing testing testing');
+            if (responseReady) {
+                fetchAndPlayAudio('testing testing again');
+            }
             if (response.length > 0) {
                 fetchAndPlayAudio(response);
                 setResponseReady(false);
             }
-            fetchAndPlayAudio('testing testing again');
+            
         
         });
 
