@@ -106,10 +106,11 @@ const ChatPage = ({
             ]);
             setIsConversationFinished(finished);
             setIsProcessing(false);
-            setLoading(false); // Set loading to false after transcription response is received
+             // Set loading to false after transcription response is received
 
             // Fetch and play the TTS audio response immediately
             fetchAndPlayAudio(response);
+            setLoading(false);
         });
 
         return () => {
