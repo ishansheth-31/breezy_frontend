@@ -65,7 +65,7 @@ const ChatPage = ({
                 }
             })
         };
-
+    
         try {
             const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', options);
             if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
@@ -86,6 +86,7 @@ const ChatPage = ({
         }
     };
 
+
     useEffect(() => {
         const socketIo = io(
             "https://breezy-backend-de177311f71b.herokuapp.com"
@@ -105,13 +106,10 @@ const ChatPage = ({
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
-            fetchAndPlayAudio(response);
-            setIsConversationFinished(finished);
+            await fetchAndPlayAudio(response);
             setIsProcessing(false);
-             // Set loading to false after transcription response is received
-
-            // Fetch and play the TTS audio response immediately
             setLoading(false);
+            setIsConversationFinished(finished);
         });
 
         return () => {
