@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -23,15 +23,10 @@ const ChatPage = ({
 
     const [isConversationFinished, setIsConversationFinished] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
-    const [transcription, setTranscription] = useState(
-        "Realtime speech transcription"
-    );
-    const [socket, setSocket] = useState(null);
-    const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isFetchingReport, setIsFetchingReport] = useState(false);
+    const [latestResponse, setLatestResponse] = useState(""); // State to store the latest response
 
-    const fetchReport = async () => {
+    const fetchReport = useCallback(async () => {
         try {
             setLoading(true); // Set loading to true when fetching the report
             const response = await axios.get(
@@ -43,14 +38,14 @@ const ChatPage = ({
         } finally {
             setLoading(false); // Set loading to false after fetching the report
         }
-    };
+    }, [patient_id, setLoading]);
 
     const playAudioFromUrl = (audioUrl) => {
         const audio = new Audio(audioUrl);
         audio.play().catch(error => console.error('Error playing the audio:', error));
     };
 
-    const fetchAndPlayAudio = async (responseText) => {
+    const fetchAndPlayAudio = useCallback(async (responseText) => {
         const options = {
             method: 'POST',
             headers: {
@@ -84,7 +79,7 @@ const ChatPage = ({
         } catch (err) {
             console.error('Error fetching TTS data:', err);
         }
-    };
+    }, []);
 
     useEffect(() => {
         const socketIo = io(
@@ -115,7 +110,7 @@ const ChatPage = ({
         return () => {
             socketIo.disconnect();
         };
-    }, []);
+    }, [fetchAndPlayAudio, setChatHistory, setLoading]);
 
     const getMicrophone = async () => {
         try {
@@ -185,7 +180,7 @@ const ChatPage = ({
                 socket.off("report_generated");
             };
         }
-    }, [socket]);
+    }, [fetchReport, socket]);
 
     return (
         <div
@@ -281,7 +276,7 @@ const ChatPage = ({
                             alignItems: "center",
                         }}
                     >
-                        {!loading && !isFetchingReport && (
+                        {!loading && (
                             <>
                                 <button
                                     style={{
