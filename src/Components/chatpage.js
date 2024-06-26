@@ -110,18 +110,23 @@ const ChatPage = ({
             ]);
             setIsConversationFinished(finished);
             setIsProcessing(false);
-            setLoading(false);
-            if (responseReady) {
-                fetchAndPlayAudio('testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again.');
-            }
-            if (response.length > 0) {
-                fetchAndPlayAudio('testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again.');
-            }
-            
-        
+            setLoading(false);        
+        });
+
+        socket.on("error", (data) => {
+            alert(data.error);
+        });
+
+        socket.on("report_generated", (data) => {
+            setIsConversationFinished(true);
+            fetchReport();
         });
 
         return () => {
+            socket.off("transcription_update");
+            socketIo.off("transcription_response");
+            socket.off("error");
+            socket.off("report_generated");
             socketIo.disconnect();
         };
     }, []);
@@ -163,54 +168,27 @@ const ChatPage = ({
 
     const stopRecording = () => {
         setIsProcessing(true);
-        setLoading(true); // Set loading to true when stopping the recording
+        setLoading(true);
         if (microphone) {
             microphone.stop();
             microphone.stream.getTracks().forEach(track => track.stop());
             setMicrophone(null);
         }
-        socket.emit("toggle_transcription", { action: "stop", patient_id });
+        if (socket) {
+            socket.emit("toggle_transcription", { action: "stop", patient_id });
+        } else {
+            console.error("Socket not initialized");
+        }
         setIsProcessing(false);
     };
-
-    socket.on('transcription_response', (data) => {
-        const { response } = data;
-        if (response) {
-            setResponseText(response);  // Set the text to display
-            setResponseReady(true);    // Indicate that the response is ready for audio playback
-            setLoading(false);
-        }
-    });
-
-    useEffect(() => {
-        if (socket) {
-            socket.on("transcription_update", (data) => {
-                setTranscription(data.transcription);
-            });
-
-            socket.on("error", (data) => {
-                alert(data.error);
-            });
-
-            socket.on("report_generated", (data) => {
-                setIsConversationFinished(true);
-                fetchReport();
-            });
-
-            return () => {
-                socket.off("transcription_update");
-                socket.off("error");
-                socket.off("report_generated");
-            };
-        }
-    }, [socket]);
-
+    
     const playResponseAudio = () => {
         if (responseText && responseReady) {
             fetchAndPlayAudio(responseText);
             setResponseReady(false);  // Reset after playing
         }
     };
+    
 
     return (
         <div
