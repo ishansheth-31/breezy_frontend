@@ -50,9 +50,7 @@ const ChatPage = ({
         audio.play().catch(error => console.error('Error playing the audio:', error));
     };
 
-    const fetchAndPlayAudio = async (responseText, retryCount = 0) => {
-        console.log("fetchAndPlayAudio called with responseText:", responseText); // Logging statement
-        const maxRetries = 3;
+    const fetchAndPlayAudio = async (responseText) => {
         const options = {
             method: 'POST',
             headers: {
@@ -76,7 +74,6 @@ const ChatPage = ({
             if (contentType && contentType.startsWith('audio/')) {
                 const blob = await apiResponse.blob();
                 const url = URL.createObjectURL(blob);
-                console.log("Playing audio from URL:", url); // Logging statement
                 playAudioFromUrl(url);
             } else if (contentType && contentType.includes('application/json')) {
                 const json = await apiResponse.json();
@@ -86,10 +83,6 @@ const ChatPage = ({
             }
         } catch (err) {
             console.error('Error fetching TTS data:', err);
-            if (retryCount < maxRetries) {
-                console.log(`Retrying TTS fetch... Attempt ${retryCount + 1}`);
-                fetchAndPlayAudio(responseText, retryCount + 1);
-            }
         }
     };
 
@@ -105,7 +98,6 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            console.log("Received response:", response);  // Ensure this prints the correct response
 
             setChatHistory((prevHistory) => [
                 ...prevHistory,
