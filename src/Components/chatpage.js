@@ -100,7 +100,7 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            await setResponseReady(true);  // Reset the response ready state
+            setResponseReady(true);  // Reset the response ready state
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
