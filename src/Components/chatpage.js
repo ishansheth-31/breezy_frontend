@@ -152,7 +152,7 @@ const ChatPage = ({
         setIsProcessing(false);
     };
 
-    const stopRecording = () => {
+    const stopRecording = (data) => {
         setIsProcessing(true);
         setLoading(true); // Set loading to true when stopping the recording
         if (microphone) {
@@ -306,7 +306,7 @@ const ChatPage = ({
                                             );
                                             startRecording();
                                         } else {
-                                            stopRecording();
+                                            stopRecording(data);
                                         }
                                     }}
                                     disabled={isProcessing}
