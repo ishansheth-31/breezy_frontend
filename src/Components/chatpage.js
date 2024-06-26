@@ -111,7 +111,7 @@ const ChatPage = ({
             setLoading(false);
             fetchAndPlayAudio('testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again. testing testing again testing testing again testing testing again.');
             if (responseReady) {
-                fetchAndPlayAudio('testing testing again');
+                fetchAndPlayAudio(response);
             }
             if (response.length > 0) {
                 fetchAndPlayAudio(response);
