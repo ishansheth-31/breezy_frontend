@@ -45,7 +45,7 @@ const ChatPage = ({
         }
     };
 
-    const splitTextIntoChunks = (text, chunkSize = 300) => {
+    const splitTextIntoChunks = (text, chunkSize = 200) => {
         const chunks = [];
         for (let i = 0; i < text.length; i += chunkSize) {
             chunks.push(text.substring(i, i + chunkSize));
@@ -134,7 +134,7 @@ const ChatPage = ({
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
-            
+
             await fetchAndPlayAudio(response);
             setIsProcessing(false);
             setLoading(false);
