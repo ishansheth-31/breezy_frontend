@@ -151,7 +151,9 @@ const ChatPage = ({
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
+            console.log("Response 1", response);
             setCurrentResponse(response); // Update the current response
+            console.log("Current response", currentResponse);
 
             // await fetchAndPlayAudio(response);
             setIsProcessing(false);
