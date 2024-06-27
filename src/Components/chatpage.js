@@ -151,7 +151,7 @@ const ChatPage = ({
                 { role: "assistant", content: response },
             ]);
 
-            await fetchAndPlayAudio(response);
+            // await fetchAndPlayAudio(response);
             setIsProcessing(false);
             setLoading(false);
             setIsConversationFinished(finished);
