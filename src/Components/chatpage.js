@@ -95,12 +95,15 @@ const ChatPage = ({
                 console.error('Error playing the audio:', error);
                 reject(error);
             };
-            audio.play().catch(error => {
+            audio.play().then(() => {
+                console.log('Playing audio from URL:', audioUrl);
+            }).catch(error => {
                 console.error('Error playing the audio:', error);
                 reject(error);
             });
         });
     };
+    
 
     useEffect(() => {
         const socketIo = io(
