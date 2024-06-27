@@ -30,6 +30,8 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
+    const [audioQueue, setAudioQueue] = useState([]);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const fetchReport = async () => {
         try {
@@ -61,9 +63,9 @@ const ChatPage = ({
                 'Content-Type': 'application/json'
             }
         };
-    
+
         const textChunks = splitTextIntoChunks(responseText);
-    
+
         for (const chunk of textChunks) {
             const requestOptions = {
                 ...options,
@@ -75,16 +77,16 @@ const ChatPage = ({
                     }
                 })
             };
-    
+
             try {
                 const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', requestOptions);
                 if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
-    
+
                 const contentType = apiResponse.headers.get('content-type');
                 if (contentType && contentType.startsWith('audio/')) {
                     const blob = await apiResponse.blob();
                     const url = URL.createObjectURL(blob);
-                    await playAudioFromUrl(url); // Ensure the audio plays sequentially
+                    setAudioQueue((prevQueue) => [...prevQueue, url]);
                 } else if (contentType && contentType.includes('application/json')) {
                     const json = await apiResponse.json();
                     console.error('Expected audio, got JSON:', json);
@@ -95,8 +97,25 @@ const ChatPage = ({
                 console.error('Error fetching TTS data:', err);
             }
         }
-    };    
-    
+    };
+
+    const playAudioQueue = async () => {
+        if (audioQueue.length === 0 || isPlaying) return;
+
+        setIsPlaying(true);
+        const audioUrl = audioQueue[0];
+
+        try {
+            await playAudioFromUrl(audioUrl);
+            setAudioQueue((prevQueue) => prevQueue.slice(1));
+            setIsPlaying(false);
+            playAudioQueue();
+        } catch (error) {
+            console.error('Error playing the audio:', error);
+            setIsPlaying(false);
+        }
+    };
+
     const playAudioFromUrl = (audioUrl) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio(audioUrl);
@@ -113,7 +132,6 @@ const ChatPage = ({
             });
         });
     };
-    
 
     useEffect(() => {
         const socketIo = io(
@@ -127,13 +145,13 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            
 
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
+
             await fetchAndPlayAudio(response);
             setIsProcessing(false);
             setLoading(false);
@@ -144,6 +162,12 @@ const ChatPage = ({
             socketIo.disconnect();
         };
     }, []);
+
+    useEffect(() => {
+        if (audioQueue.length > 0 && !isPlaying) {
+            playAudioQueue();
+        }
+    }, [audioQueue, isPlaying]);
 
     const getMicrophone = async () => {
         try {
@@ -387,4 +411,3 @@ const ChatPage = ({
 };
 
 export default ChatPage;
-
