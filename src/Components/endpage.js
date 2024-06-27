@@ -53,7 +53,7 @@ const EndPage = ({
                 <div
                     style={{
                         display: "flex",
-                        width: "90%",
+                        width: "fit-content",
                         height: "40%",
                         alignItems: "center",
                         backgroundColor: "#94d1f2",

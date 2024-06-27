@@ -55,15 +55,15 @@ const ChatPage = ({
 
     const fetchAndPlayAudio = async (responseText) => {
         const options = {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
-                'Content-Type': 'application/json'
-            }
+                "xi-api-key": "4e0f2a69188f25172725c65b23e2286a",
+                "Content-Type": "application/json",
+            },
         };
-    
+
         const textChunks = splitTextIntoChunks(responseText);
-    
+
         for (const chunk of textChunks) {
             const requestOptions = {
                 ...options,
@@ -71,49 +71,60 @@ const ChatPage = ({
                     text: chunk,
                     voice_settings: {
                         stability: 1,
-                        similarity_boost: 0
-                    }
-                })
+                        similarity_boost: 0,
+                    },
+                }),
             };
-    
+
             try {
-                const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', requestOptions);
-                if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
-    
-                const contentType = apiResponse.headers.get('content-type');
-                if (contentType && contentType.startsWith('audio/')) {
+                const apiResponse = await fetch(
+                    "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream",
+                    requestOptions
+                );
+                if (!apiResponse.ok)
+                    throw new Error(
+                        `API response not OK, status: ${apiResponse.status}`
+                    );
+
+                const contentType = apiResponse.headers.get("content-type");
+                if (contentType && contentType.startsWith("audio/")) {
                     const blob = await apiResponse.blob();
                     const url = URL.createObjectURL(blob);
                     await playAudioFromUrl(url); // Ensure the audio plays sequentially
-                } else if (contentType && contentType.includes('application/json')) {
+                } else if (
+                    contentType &&
+                    contentType.includes("application/json")
+                ) {
                     const json = await apiResponse.json();
-                    console.error('Expected audio, got JSON:', json);
+                    console.error("Expected audio, got JSON:", json);
                 } else {
                     throw new Error("Unexpected content type: " + contentType);
                 }
             } catch (err) {
-                console.error('Error fetching TTS data:', err);
+                console.error("Error fetching TTS data:", err);
             }
         }
-    };    
-    
+    };
+
     const playAudioFromUrl = (audioUrl) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio(audioUrl);
             audio.onended = resolve; // Resolve the promise when the audio ends
             audio.onerror = (error) => {
-                console.error('Error playing the audio:', error);
+                console.error("Error playing the audio:", error);
                 reject(error);
             };
-            audio.play().then(() => {
-                console.log('Playing audio from URL:', audioUrl);
-            }).catch(error => {
-                console.error('Error playing the audio:', error);
-                reject(error);
-            });
+            audio
+                .play()
+                .then(() => {
+                    console.log("Playing audio from URL:", audioUrl);
+                })
+                .catch((error) => {
+                    console.error("Error playing the audio:", error);
+                    reject(error);
+                });
         });
     };
-    
 
     useEffect(() => {
         const socketIo = io(
@@ -127,7 +138,6 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            
 
             setChatHistory((prevHistory) => [
                 ...prevHistory,
@@ -388,4 +398,3 @@ const ChatPage = ({
 };
 
 export default ChatPage;
-
