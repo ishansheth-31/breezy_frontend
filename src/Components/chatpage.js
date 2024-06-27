@@ -51,8 +51,8 @@ const ChatPage = ({
             chunks.push(text.substring(i, i + chunkSize));
         }
         return chunks;
-    };
-    
+    };    
+
     const fetchAndPlayAudio = async (responseText) => {
         const options = {
             method: 'POST',
@@ -100,12 +100,10 @@ const ChatPage = ({
     const playAudioFromUrl = (audioUrl) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio(audioUrl);
-            audio.addEventListener('ended', resolve); // Ensure the promise resolves when audio ends
-            audio.addEventListener('error', (error) => {
+            audio.play().then(resolve).catch(error => {
                 console.error('Error playing the audio:', error);
                 reject(error);
             });
-            audio.play();
         });
     };
     
