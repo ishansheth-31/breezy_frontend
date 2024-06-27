@@ -4,6 +4,8 @@ import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
 import StopIcon from "@mui/icons-material/Stop";
+import AudioPlayer from 'react-audio-player';
+
 
 const ChatPage = ({
     patient_id,
@@ -47,92 +49,6 @@ const ChatPage = ({
         }
     };
 
-    const splitTextIntoChunks = (text, chunkSize = 300) => {
-        const chunks = [];
-        for (let i = 0; i < text.length; i += chunkSize) {
-            chunks.push(text.substring(i, i + chunkSize));
-        }
-        return chunks;
-    };
-
-    const fetchAndPlayAudio = async (responseText) => {
-        const options = {
-            method: 'POST',
-            headers: {
-                'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
-                'Content-Type': 'application/json'
-            }
-        };
-
-        const textChunks = splitTextIntoChunks(responseText);
-
-        for (const chunk of textChunks) {
-            const requestOptions = {
-                ...options,
-                body: JSON.stringify({
-                    text: chunk,
-                    voice_settings: {
-                        stability: 1,
-                        similarity_boost: 0
-                    }
-                })
-            };
-
-            try {
-                const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', requestOptions);
-                if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
-
-                const contentType = apiResponse.headers.get('content-type');
-                if (contentType && contentType.startsWith('audio/')) {
-                    const blob = await apiResponse.blob();
-                    const url = URL.createObjectURL(blob);
-                    setAudioQueue((prevQueue) => [...prevQueue, url]);
-                } else if (contentType && contentType.includes('application/json')) {
-                    const json = await apiResponse.json();
-                    console.error('Expected audio, got JSON:', json);
-                } else {
-                    throw new Error("Unexpected content type: " + contentType);
-                }
-            } catch (err) {
-                console.error('Error fetching TTS data:', err);
-            }
-        }
-    };
-
-    const playAudioQueue = async () => {
-        if (audioQueue.length === 0 || isPlaying) return;
-
-        setIsPlaying(true);
-        const audioUrl = audioQueue[0];
-
-        try {
-            await playAudioFromUrl(audioUrl);
-            setAudioQueue((prevQueue) => prevQueue.slice(1));
-            setIsPlaying(false);
-            playAudioQueue();
-        } catch (error) {
-            console.error('Error playing the audio:', error);
-            setIsPlaying(false);
-        }
-    };
-
-    const playAudioFromUrl = (audioUrl) => {
-        return new Promise((resolve, reject) => {
-            const audio = new Audio(audioUrl);
-            audio.onended = resolve; // Resolve the promise when the audio ends
-            audio.onerror = (error) => {
-                console.error('Error playing the audio:', error);
-                reject(error);
-            };
-            audio.play().then(() => {
-                console.log('Playing audio from URL:', audioUrl);
-            }).catch(error => {
-                console.error('Error playing the audio:', error);
-                reject(error);
-            });
-        });
-    };
-
     useEffect(() => {
         const socketIo = io(
             "https://breezy-backend-de177311f71b.herokuapp.com"
@@ -152,7 +68,6 @@ const ChatPage = ({
                 { role: "assistant", content: response },
             ]);
 
-            await fetchAndPlayAudio(response);
             setIsProcessing(false);
             setLoading(false);
             setIsConversationFinished(finished);
@@ -162,12 +77,6 @@ const ChatPage = ({
             socketIo.disconnect();
         };
     }, []);
-
-    useEffect(() => {
-        if (audioQueue.length > 0 && !isPlaying) {
-            playAudioQueue();
-        }
-    }, [audioQueue, isPlaying]);
 
     const getMicrophone = async () => {
         try {
