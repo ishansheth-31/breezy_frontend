@@ -31,6 +31,7 @@ const ChatPage = ({
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
+    const [currentResponse, setCurrentResponse] = useState("");
 
     const fetchReport = async () => {
         try {
@@ -150,6 +151,7 @@ const ChatPage = ({
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
+            setCurrentResponse(response); // Update the current response
 
             // await fetchAndPlayAudio(response);
             setIsProcessing(false);
@@ -357,8 +359,8 @@ const ChatPage = ({
                                             startRecording();
                                         } else {
                                             stopRecording();
-                                            console.log("Response: ", response);
-                                            fetchAndPlayAudio(response);
+                                            console.log("Response: ", currentResponse);
+                                            fetchAndPlayAudio(currentResponse);
                                         }
                                     }}
                                     disabled={isProcessing}
