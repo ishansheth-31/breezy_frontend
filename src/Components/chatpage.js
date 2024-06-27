@@ -12,14 +12,15 @@ const ChatPage = ({
     chatHistory,
     setChatHistory,
 }) => {
-    const chatHistoryRef = useRef(null); // Create a ref for the chat history container
+    const chatHistoryRef = useRef(null);
 
     useEffect(() => {
+        console.log("Chat history updated", chatHistory);
         if (chatHistoryRef.current) {
             chatHistoryRef.current.scrollTop =
                 chatHistoryRef.current.scrollHeight;
         }
-    }, [chatHistory]); // Scroll to bottom whenever chat history updates
+    }, [chatHistory]);
 
     const [isConversationFinished, setIsConversationFinished] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
@@ -33,7 +34,8 @@ const ChatPage = ({
 
     const fetchReport = async () => {
         try {
-            setLoading(true); // Set loading to true when fetching the report
+            setLoading(true);
+            console.log(`Fetching report for patient ID: ${patient_id}`);
             const response = await axios.get(
                 `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
             );
@@ -41,11 +43,11 @@ const ChatPage = ({
         } catch (error) {
             console.error("Error fetching report:", error);
         } finally {
-            setLoading(false); // Set loading to false after fetching the report
+            setLoading(false);
         }
     };
 
-    const splitTextIntoChunks = (text, chunkSize = 150) => { // Smaller chunk size
+    const splitTextIntoChunks = (text, chunkSize = 150) => {
         const chunks = [];
         for (let i = 0; i < text.length; i += chunkSize) {
             chunks.push(text.substring(i, i + chunkSize));
@@ -54,6 +56,7 @@ const ChatPage = ({
     };
     
     const fetchAndPlayAudio = async (responseText) => {
+        console.log("Fetching and playing audio for text:", responseText);
         const options = {
             method: "POST",
             headers: {
@@ -65,6 +68,7 @@ const ChatPage = ({
         const textChunks = splitTextIntoChunks(responseText);
     
         for (const chunk of textChunks) {
+            console.log("Processing chunk:", chunk);
             const requestOptions = {
                 ...options,
                 body: JSON.stringify({
@@ -90,8 +94,8 @@ const ChatPage = ({
                 if (contentType && contentType.startsWith("audio/")) {
                     const blob = await apiResponse.blob();
                     const url = URL.createObjectURL(blob);
-                    await playAudioFromUrl(url); // Ensure the audio plays sequentially
-                    URL.revokeObjectURL(url); // Clean up memory
+                    await playAudioFromUrl(url);
+                    URL.revokeObjectURL(url);
                 } else if (
                     contentType &&
                     contentType.includes("application/json")
@@ -112,7 +116,7 @@ const ChatPage = ({
             const audio = new Audio(audioUrl);
             audio.onended = () => {
                 resolve();
-                audio.src = ''; // Release memory after audio ends
+                audio.src = '';
             };
             audio.onerror = (error) => {
                 console.error("Error playing the audio:", error);
@@ -125,18 +129,20 @@ const ChatPage = ({
         });
     };
     
-
     useEffect(() => {
         const socketIo = io(
             "https://breezy-backend-de177311f71b.herokuapp.com"
         );
         setSocket(socketIo);
+        console.log("Socket connected");
 
         socketIo.on("transcription_update", (data) => {
+            console.log("Transcription update received:", data);
             setTranscription(data.transcription);
         });
 
         socketIo.on("transcription_response", async (data) => {
+            console.log("Transcription response received:", data);
             const { user_message, response, finished } = data;
 
             setChatHistory((prevHistory) => [
@@ -153,6 +159,7 @@ const ChatPage = ({
 
         return () => {
             socketIo.disconnect();
+            console.log("Socket disconnected");
         };
     }, []);
 
@@ -161,20 +168,24 @@ const ChatPage = ({
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
             });
+            console.log("Microphone accessed");
             const mimeType = MediaRecorder.isTypeSupported("audio/mp4")
                 ? "audio/mp4"
                 : "audio/webm";
             const mic = new MediaRecorder(stream, { mimeType: mimeType });
             mic.ondataavailable = async (event) => {
                 if (event.data.size > 0 && socket) {
+                    console.log("Audio data available, sending to socket");
                     socket.emit("audio_stream", event.data);
                 }
             };
             mic.onstart = () => {
                 setIsRecording(true);
+                console.log("Recording started");
             };
             mic.onstop = () => {
                 setIsRecording(false);
+                console.log("Recording stopped");
             };
             return mic;
         } catch (error) {
@@ -193,7 +204,7 @@ const ChatPage = ({
 
     const stopRecording = () => {
         setIsProcessing(true);
-        setLoading(true); // Set loading to true when stopping the recording
+        setLoading(true);
         if (microphone) {
             microphone.stop();
             microphone.stream.getTracks().forEach((track) => track.stop());
@@ -206,14 +217,17 @@ const ChatPage = ({
     useEffect(() => {
         if (socket) {
             socket.on("transcription_update", (data) => {
+                console.log("Transcription update:", data);
                 setTranscription(data.transcription);
             });
 
             socket.on("error", (data) => {
+                console.error("Socket error:", data.error);
                 alert(data.error);
             });
 
             socket.on("report_generated", (data) => {
+                console.log("Report generated:", data);
                 setIsConversationFinished(true);
                 fetchReport();
             });
@@ -277,7 +291,7 @@ const ChatPage = ({
             >
                 <div
                     className="chat-history"
-                    ref={chatHistoryRef} // Assign the ref to the chat history container
+                    ref={chatHistoryRef}
                     style={{
                         height: "100%",
                         width: "100%",
