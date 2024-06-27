@@ -45,14 +45,14 @@ const ChatPage = ({
         }
     };
 
-    const splitTextIntoChunks = (text, chunkSize = 200) => {
+    const splitTextIntoChunks = (text, chunkSize = 100) => { // Smaller chunk size
         const chunks = [];
         for (let i = 0; i < text.length; i += chunkSize) {
             chunks.push(text.substring(i, i + chunkSize));
         }
         return chunks;
     };
-
+    
     const fetchAndPlayAudio = async (responseText) => {
         const options = {
             method: "POST",
@@ -61,9 +61,9 @@ const ChatPage = ({
                 "Content-Type": "application/json",
             },
         };
-
+    
         const textChunks = splitTextIntoChunks(responseText);
-
+    
         for (const chunk of textChunks) {
             const requestOptions = {
                 ...options,
@@ -75,7 +75,7 @@ const ChatPage = ({
                     },
                 }),
             };
-
+    
             try {
                 const apiResponse = await fetch(
                     "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream",
@@ -85,12 +85,13 @@ const ChatPage = ({
                     throw new Error(
                         `API response not OK, status: ${apiResponse.status}`
                     );
-
+    
                 const contentType = apiResponse.headers.get("content-type");
                 if (contentType && contentType.startsWith("audio/")) {
                     const blob = await apiResponse.blob();
                     const url = URL.createObjectURL(blob);
                     await playAudioFromUrl(url); // Ensure the audio plays sequentially
+                    URL.revokeObjectURL(url); // Clean up memory
                 } else if (
                     contentType &&
                     contentType.includes("application/json")
@@ -105,26 +106,25 @@ const ChatPage = ({
             }
         }
     };
-
+    
     const playAudioFromUrl = (audioUrl) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio(audioUrl);
-            audio.onended = resolve; // Resolve the promise when the audio ends
+            audio.onended = () => {
+                resolve();
+                audio.src = ''; // Release memory after audio ends
+            };
             audio.onerror = (error) => {
                 console.error("Error playing the audio:", error);
                 reject(error);
             };
-            audio
-                .play()
-                .then(() => {
-                    console.log("Playing audio from URL:", audioUrl);
-                })
-                .catch((error) => {
-                    console.error("Error playing the audio:", error);
-                    reject(error);
-                });
+            audio.play().catch((error) => {
+                console.error("Error playing the audio:", error);
+                reject(error);
+            });
         });
     };
+    
 
     useEffect(() => {
         const socketIo = io(
