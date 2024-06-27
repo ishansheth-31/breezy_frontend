@@ -110,27 +110,24 @@ const ChatPage = ({
             }
         // }
     };
-
+    
     const playAudioFromUrl = (audioUrl) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio(audioUrl);
-            audio.oncanplaythrough = () => {
-                audio.play().then(resolve).catch((error) => {
-                    console.error("Error playing the audio:", error);
-                    reject(error);
-                });
+            audio.onended = () => {
+                resolve();
+                audio.src = '';
             };
             audio.onerror = (error) => {
-                console.error("Error event on audio element:", error);
+                console.error("Error playing the audio:", error);
                 reject(error);
             };
-            audio.onended = () => {
-                console.log("Audio playback finished");
-                resolve();
-            };
+            audio.play().catch((error) => {
+                console.error("Error playing the audio:", error);
+                reject(error);
+            });
         });
     };
-    
     
     useEffect(() => {
         const socketIo = io(
