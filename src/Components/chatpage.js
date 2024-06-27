@@ -65,14 +65,14 @@ const ChatPage = ({
             },
         };
     
-        const textChunks = splitTextIntoChunks(responseText);
+        // const textChunks = splitTextIntoChunks(responseText);
     
-        for (const chunk of textChunks) {
-            console.log("Processing chunk:", chunk);
+        // for (const chunk of textChunks) {
+            console.log("Processing chunk:", responseText);
             const requestOptions = {
                 ...options,
                 body: JSON.stringify({
-                    text: chunk,
+                    text: responseText,
                     voice_settings: {
                         stability: 1,
                         similarity_boost: 0,
@@ -108,7 +108,7 @@ const ChatPage = ({
             } catch (err) {
                 console.error("Error fetching TTS data:", err);
             }
-        }
+        // }
     };
     
     const playAudioFromUrl = (audioUrl) => {
