@@ -357,7 +357,8 @@ const ChatPage = ({
                                             startRecording();
                                         } else {
                                             stopRecording();
-                                            fetchAndPlayAudio('ok she fine she sexy she cool she from east atlanta so she love to get lose casamigos do some shrooms bend over come ride my like a rover all these vvses looking like im from minnesota she freaky she got a tattoo right by her bikini that say eat me. ok she fine she sexy she cool she from east atlanta so she love to get lose casamigos do some shrooms bend over come ride my like a rover all these vvses looking like im from minnesota she freaky she got a tattoo right by her bikini that say eat me')
+                                            console.log("Response: ", response);
+                                            fetchAndPlayAudio(response);
                                         }
                                     }}
                                     disabled={isProcessing}
