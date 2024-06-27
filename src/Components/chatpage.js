@@ -61,15 +61,25 @@ const ChatPage = ({
                 'Content-Type': 'application/json'
             }
         };
+    
         const textChunks = splitTextIntoChunks(responseText);
+    
         for (const chunk of textChunks) {
             const requestOptions = {
                 ...options,
-                body: JSON.stringify({ text: chunk, voice_settings: { stability: 1, similarity_boost: 0 } })
+                body: JSON.stringify({
+                    text: chunk,
+                    voice_settings: {
+                        stability: 1,
+                        similarity_boost: 0
+                    }
+                })
             };
+    
             try {
                 const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', requestOptions);
                 if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
+    
                 const contentType = apiResponse.headers.get('content-type');
                 if (contentType && contentType.startsWith('audio/')) {
                     const blob = await apiResponse.blob();
@@ -85,7 +95,7 @@ const ChatPage = ({
                 console.error('Error fetching TTS data:', err);
             }
         }
-    };
+    };    
     
     const playAudioFromUrl = (audioUrl) => {
         return new Promise((resolve, reject) => {
