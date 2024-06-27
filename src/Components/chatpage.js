@@ -55,15 +55,15 @@ const ChatPage = ({
 
     const fetchAndPlayAudio = async (responseText) => {
         const options = {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'xi-api-key': '4e0f2a69188f25172725c65b23e2286a',
-                'Content-Type': 'application/json'
-            }
+                "xi-api-key": "4e0f2a69188f25172725c65b23e2286a",
+                "Content-Type": "application/json",
+            },
         };
-    
+
         const textChunks = splitTextIntoChunks(responseText);
-    
+
         for (const chunk of textChunks) {
             const requestOptions = {
                 ...options,
@@ -71,49 +71,60 @@ const ChatPage = ({
                     text: chunk,
                     voice_settings: {
                         stability: 1,
-                        similarity_boost: 0
-                    }
-                })
+                        similarity_boost: 0,
+                    },
+                }),
             };
-    
+
             try {
-                const apiResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream', requestOptions);
-                if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
-    
-                const contentType = apiResponse.headers.get('content-type');
-                if (contentType && contentType.startsWith('audio/')) {
+                const apiResponse = await fetch(
+                    "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream",
+                    requestOptions
+                );
+                if (!apiResponse.ok)
+                    throw new Error(
+                        `API response not OK, status: ${apiResponse.status}`
+                    );
+
+                const contentType = apiResponse.headers.get("content-type");
+                if (contentType && contentType.startsWith("audio/")) {
                     const blob = await apiResponse.blob();
                     const url = URL.createObjectURL(blob);
                     await playAudioFromUrl(url); // Ensure the audio plays sequentially
-                } else if (contentType && contentType.includes('application/json')) {
+                } else if (
+                    contentType &&
+                    contentType.includes("application/json")
+                ) {
                     const json = await apiResponse.json();
-                    console.error('Expected audio, got JSON:', json);
+                    console.error("Expected audio, got JSON:", json);
                 } else {
                     throw new Error("Unexpected content type: " + contentType);
                 }
             } catch (err) {
-                console.error('Error fetching TTS data:', err);
+                console.error("Error fetching TTS data:", err);
             }
         }
-    };    
-    
+    };
+
     const playAudioFromUrl = (audioUrl) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio(audioUrl);
             audio.onended = resolve; // Resolve the promise when the audio ends
             audio.onerror = (error) => {
-                console.error('Error playing the audio:', error);
+                console.error("Error playing the audio:", error);
                 reject(error);
             };
-            audio.play().then(() => {
-                console.log('Playing audio from URL:', audioUrl);
-            }).catch(error => {
-                console.error('Error playing the audio:', error);
-                reject(error);
-            });
+            audio
+                .play()
+                .then(() => {
+                    console.log("Playing audio from URL:", audioUrl);
+                })
+                .catch((error) => {
+                    console.error("Error playing the audio:", error);
+                    reject(error);
+                });
         });
     };
-    
 
     useEffect(() => {
         const socketIo = io(
@@ -127,14 +138,15 @@ const ChatPage = ({
 
         socketIo.on("transcription_response", async (data) => {
             const { user_message, response, finished } = data;
-            
 
             setChatHistory((prevHistory) => [
                 ...prevHistory,
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
-            await fetchAndPlayAudio('The sun rises over the horizon casting a golden glow across the fields birds begin to sing their morning songs as the world awakens the gentle breeze carries the scent of blooming flowers and fresh grass children laugh and play chasing each other through the open meadows the farmers begin their work tending to the crops and animals with care the peaceful rhythm of nature continues uninterrupted a reminder of the simple beauty of life as the day progresses the warmth of the sun intensifies filling the air with a comfortable heat that invites relaxation and joy families gather for picnics under the shade of ancient oak trees spreading out blankets and sharing meals while engaging in lively conversations the sound of laughter and happiness echoes through the valleys as people take a moment to appreciate the simple pleasures of life the animals in the nearby forests go about their day the deer grazing on tender shoots the birds flitting from branch to branch in a graceful dance as the afternoon turns into evening the sky transforms into a canvas of brilliant colors with hues of pink orange and purple painting the heavens as the sun dips below the horizon the first stars begin to twinkle against the deepening blue of the twilight sky the air cools and the sounds of the night emerge crickets chirp softly in the distance while a gentle rustling in the trees suggests the presence of nocturnal creatures the world slowly quiets down the energy of the day giving way to the calm of the night people return to their homes tired but content ready to rest and rejuvenate for another day to come the cycle of life continues a seamless blend of activity and tranquility where every moment holds its own unique charm and beauty');
+            await fetchAndPlayAudio(
+                "The sun rises over the horizon casting a golden glow across the fields birds begin to sing their morning songs as the world awakens the gentle breeze carries the scent of blooming flowers and fresh grass children laugh and play chasing each other through the open meadows the farmers begin their work tending to the crops and animals with care the peaceful rhythm of nature continues uninterrupted a reminder of the simple beauty of life as the day progresses the warmth of the sun intensifies filling the air with a comfortable heat that invites relaxation and joy families gather for picnics under the shade of ancient oak trees spreading out blankets and sharing meals while engaging in lively conversations the sound of laughter and happiness echoes through the valleys as people take a moment to appreciate the simple pleasures of life the animals in the nearby forests go about their day the deer grazing on tender shoots the birds flitting from branch to branch in a graceful dance as the afternoon turns into evening the sky transforms into a canvas of brilliant colors with hues of pink orange and purple painting the heavens as the sun dips below the horizon the first stars begin to twinkle against the deepening blue of the twilight sky the air cools and the sounds of the night emerge crickets chirp softly in the distance while a gentle rustling in the trees suggests the presence of nocturnal creatures the world slowly quiets down the energy of the day giving way to the calm of the night people return to their homes tired but content ready to rest and rejuvenate for another day to come the cycle of life continues a seamless blend of activity and tranquility where every moment holds its own unique charm and beauty"
+            );
             setIsProcessing(false);
             setLoading(false);
             setIsConversationFinished(finished);
@@ -387,4 +399,3 @@ const ChatPage = ({
 };
 
 export default ChatPage;
-
