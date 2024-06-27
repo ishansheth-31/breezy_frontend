@@ -31,6 +31,7 @@ const ChatPage = ({
     const [socket, setSocket] = useState(null);
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [audioSrc, setAudioSrc] = useState('');
     const [isFetchingReport, setIsFetchingReport] = useState(false);
     const [audioQueue, setAudioQueue] = useState([]);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -67,6 +68,11 @@ const ChatPage = ({
                 { role: "user", content: user_message },
                 { role: "assistant", content: response },
             ]);
+
+            const speechResponse = await axios.post('/generate_speech', { text: response }, { responseType: 'arraybuffer' });
+            const blob = new Blob([speechResponse.data], { type: 'audio/mpeg' });
+            const url = URL.createObjectURL(blob);
+            setAudioSrc(url);
 
             setIsProcessing(false);
             setLoading(false);
