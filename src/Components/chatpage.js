@@ -110,24 +110,27 @@ const ChatPage = ({
             }
         // }
     };
-    
+
     const playAudioFromUrl = (audioUrl) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio(audioUrl);
-            audio.onended = () => {
-                resolve();
-                audio.src = '';
+            audio.oncanplaythrough = () => {
+                audio.play().then(resolve).catch((error) => {
+                    console.error("Error playing the audio:", error);
+                    reject(error);
+                });
             };
             audio.onerror = (error) => {
-                console.error("Error playing the audio:", error);
+                console.error("Error event on audio element:", error);
                 reject(error);
             };
-            audio.play().catch((error) => {
-                console.error("Error playing the audio:", error);
-                reject(error);
-            });
+            audio.onended = () => {
+                console.log("Audio playback finished");
+                resolve();
+            };
         });
     };
+    
     
     useEffect(() => {
         const socketIo = io(
@@ -357,7 +360,7 @@ const ChatPage = ({
                                             startRecording();
                                         } else {
                                             stopRecording();
-                                            fetchAndPlayAudio('ok she fine she sexy she cool she from east atlanta so she love to get lose casamigos do some shrooms bend over come ride my like a rover all these vvses looking like im from minnesota she freaky she got a tattoo right by her bikini that say eat me')
+                                            fetchAndPlayAudio('ok she fine she sexy she cool she from east atlanta so she love to get lose casamigos do some shrooms bend over come ride my like a rover all these vvses looking like im from minnesota she freaky she got a tattoo right by her bikini that say eat me. ok she fine she sexy she cool she from east atlanta so she love to get lose casamigos do some shrooms bend over come ride my like a rover all these vvses looking like im from minnesota she freaky she got a tattoo right by her bikini that say eat me')
                                         }
                                     }}
                                     disabled={isProcessing}
