@@ -45,7 +45,7 @@ const ChatPage = ({
         }
     };
 
-    const splitTextIntoChunks = (text, chunkSize = 500) => {
+    const splitTextIntoChunks = (text, chunkSize = 400) => {
         const chunks = [];
         for (let i = 0; i < text.length; i += chunkSize) {
             chunks.push(text.substring(i, i + chunkSize));
