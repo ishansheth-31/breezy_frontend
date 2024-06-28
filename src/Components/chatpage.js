@@ -152,7 +152,7 @@ const ChatPage = ({
                 { role: "assistant", content: response },
             ]);
             console.log("Response 1", response);
-            setCurrentResponse(response); // Update the current response
+            currentResponse = response; // Update the current response
             console.log("Current response", currentResponse);
 
             // await fetchAndPlayAudio(response);
