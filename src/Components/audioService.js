@@ -17,8 +17,9 @@ class AudioService {
       },
       body: JSON.stringify({
         text: responseText,
+        model_id: "eleven_turbo_v2",
         voice_settings: {
-          stability: 1,
+          stability: 60,
           similarity_boost: 0,
         },
       }),
@@ -26,7 +27,7 @@ class AudioService {
 
     try {
       const apiResponse = await fetch(
-        "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream",
+        "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream?optimize_streaming_latency=3",
         options
       );
       if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
