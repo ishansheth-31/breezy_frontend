@@ -48,7 +48,7 @@ const ChatPage = ({
         }
     };
 
-    const updateResponse = () => {
+    const updateResponse = (response) => {
         setCurrentResponse(response);
     }
 
@@ -156,7 +156,7 @@ const ChatPage = ({
                 { role: "assistant", content: response },
             ]);
             console.log("Response 1", response);
-            setCurrentResponse(); // Update the current response
+            updateResponse(response); // Update the current response
             console.log("Current response", currentResponse);
 
             // await fetchAndPlayAudio(response);
