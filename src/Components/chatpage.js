@@ -40,19 +40,6 @@ const ChatPage = ({
             setTranscription(data.transcription);
         });
 
-        socketIo.on("transcription_response", async (data) => {
-            const { user_message, response, finished } = data;
-            setChatHistory((prevHistory) => [
-                ...prevHistory,
-                { role: "user", content: user_message },
-                { role: "assistant", content: response },
-            ]);
-            updateResponse(response);
-            setIsProcessing(false);
-            setLoading(false);
-            setIsConversationFinished(finished);
-        });
-
         return () => {
             socketIo.disconnect();
         };
@@ -105,44 +92,58 @@ const ChatPage = ({
         setIsProcessing(false);
     };
 
-    const stopRecording = () => {
+    const stopRecording = async () => {
         setIsProcessing(true);
         setLoading(true);
+    
+        // Stop the microphone and clear its tracks
         if (microphone) {
             microphone.stop();
             microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
         }
-        setIsProcessing(false);
-        return new Promise((resolve) => {
-            socket.emit("toggle_transcription", { action: "stop", patient_id }, async (data) => {
-                if (data.error) {
-                    console.error(data.error);
-                    setIsProcessing(false);
-                    setLoading(false);
-                    resolve();
-                    return;
-                }
-
-                const { user_message, response, finished } = data;
-                console.log("data recieved");
-
-                setChatHistory((prevHistory) => [
-                    ...prevHistory,
-                    { role: "user", content: user_message },
-                    { role: "assistant", content: response },
-                ]);
-                console.log("Response: ", response);
-                const audioUrl = await audioServiceInstance.fetchAudio(response);  // Get the audio URL
-                setLatestAudioUrl(audioUrl);  // Set the latest audio URL
-                updateResponse(response);
+    
+        try {
+            // Emit stop transcription event to the server
+            const data = await new Promise((resolve) => {
+                socket.emit("toggle_transcription", { action: "stop", patient_id }, resolve);
+            });
+    
+            // Handle server response
+            if (data.error) {
+                console.error(data.error);
                 setIsProcessing(false);
                 setLoading(false);
-                setIsConversationFinished(finished);
-                resolve(response);
-            });
-        });
+                return;
+            }
+    
+            const { user_message, response, finished } = data;
+    
+            // Update chat history
+            setChatHistory((prevHistory) => [
+                ...prevHistory,
+                { role: "user", content: user_message },
+                { role: "assistant", content: response },
+            ]);
+    
+            // Fetch audio URL asynchronously
+            const audioUrl = await audioServiceInstance.fetchAudio(response);
+    
+            // Update latest audio URL and response state
+            setLatestAudioUrl(audioUrl);
+            updateResponse(response);
+    
+            // Update loading and processing states
+            setLoading(false);
+            setIsProcessing(false);
+            setIsConversationFinished(finished);
+        } catch (error) {
+            console.error("Error stopping recording:", error);
+            setIsProcessing(false);
+            setLoading(false);
+        }
     };
+    
 
     const handlePlayAudio = async () => {
         setIsPlayingAudio(true);
