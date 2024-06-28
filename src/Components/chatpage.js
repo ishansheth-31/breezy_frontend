@@ -240,7 +240,7 @@ const ChatPage = ({
 
                 console.log("Response: ", response);
                 fetchAndPlayAudio(response);
-                
+
                 updateResponse(response); // Update the current response
                 console.log("Current response", currentResponse);
     
@@ -396,10 +396,7 @@ const ChatPage = ({
                                             );
                                             startRecording();
                                         } else {
-                                            stopRecording().then((response) => {
-                                                console.log("Response: ", response);
-                                                fetchAndPlayAudio(response);
-                                            });
+                                            stopRecording()
                                         }
                                     }}
                                     disabled={isProcessing}
