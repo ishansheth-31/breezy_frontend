@@ -370,9 +370,11 @@ const ChatPage = ({
                                             startRecording();
                                         } else {
                                             stopRecording().then(() => {
-                                                console.log("Response: ", currentResponse);
-                                                fetchAndPlayAudio(currentResponse);
-                                              });
+                                                setTimeout(() => {
+                                                    console.log("Response: ", currentResponse);
+                                                    fetchAndPlayAudio(currentResponse);
+                                                });
+                                            }, 10000);
                                         }
                                     }}
                                     disabled={isProcessing}
