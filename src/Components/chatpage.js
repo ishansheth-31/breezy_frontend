@@ -221,8 +221,29 @@ const ChatPage = ({
         setIsProcessing(false);
         return new Promise((resolve) => {
             socket.emit("toggle_transcription", { action: "stop", patient_id }, () => {
-              setIsProcessing(false);
-              resolve();
+                if (data.error) {
+                    console.error(data.error);
+                    setIsProcessing(false);
+                    setLoading(false);
+                    resolve();
+                    return;
+                }
+    
+                const { user_message, response, finished } = data;
+    
+                setChatHistory((prevHistory) => [
+                    ...prevHistory,
+                    { role: "user", content: user_message },
+                    { role: "assistant", content: response },
+                ]);
+                console.log("Response 1", response);
+                updateResponse(response); // Update the current response
+                console.log("Current response", currentResponse);
+    
+                setIsProcessing(false);
+                setLoading(false);
+                setIsConversationFinished(finished);
+                resolve(response);
             });
           });        
     };
@@ -369,11 +390,9 @@ const ChatPage = ({
                                             );
                                             startRecording();
                                         } else {
-                                            stopRecording().then(() => {
-                                                setTimeout(() => {
-                                                    console.log("Response: ", currentResponse);
-                                                    fetchAndPlayAudio(currentResponse);
-                                                }, 10000);
+                                            stopRecording().then((response) => {
+                                                console.log("Response: ", response);
+                                                fetchAndPlayAudio(response);
                                             });
                                         }
                                     }}
