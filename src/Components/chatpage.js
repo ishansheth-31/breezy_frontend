@@ -237,6 +237,10 @@ const ChatPage = ({
                     { role: "assistant", content: response },
                 ]);
                 console.log("Response 1", response);
+
+                console.log("Response: ", response);
+                fetchAndPlayAudio(response);
+                
                 updateResponse(response); // Update the current response
                 console.log("Current response", currentResponse);
     
@@ -245,7 +249,9 @@ const ChatPage = ({
                 setIsConversationFinished(finished);
                 resolve(response);
             });
-          });        
+        }); 
+        
+        
     };
 
     useEffect(() => {
