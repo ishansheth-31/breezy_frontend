@@ -220,8 +220,6 @@ const ChatPage = ({
         }
         setIsProcessing(false);
         socket.emit("toggle_transcription", { action: "stop", patient_id });
-        console.log("Response: ", currentResponse);
-        fetchAndPlayAudio(currentResponse);
     };
 
     useEffect(() => {
@@ -367,6 +365,8 @@ const ChatPage = ({
                                             startRecording();
                                         } else {
                                             stopRecording();
+                                            console.log("Response: ", currentResponse);
+        fetchAndPlayAudio(currentResponse);
                                         }
                                     }}
                                     disabled={isProcessing}
