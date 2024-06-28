@@ -27,7 +27,7 @@ class AudioService {
 
     try {
       const apiResponse = await fetch(
-        "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream?optimize_streaming_latency=3",
+        "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream",
         options
       );
       if (!apiResponse.ok) throw new Error(`API response not OK, status: ${apiResponse.status}`);
