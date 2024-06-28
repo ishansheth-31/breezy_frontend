@@ -223,7 +223,7 @@ const ChatPage = ({
                         )}
                     </div>
                 )}
-                {!isRecording && latestAudioUrl && (
+                {!isRecording && !loading && latestAudioUrl && (
                     <button
                         style={{ marginTop: "10px", padding: "10px 20px", border: "none", borderRadius: "10px", backgroundColor: "#94d1f2", color: "#fff", cursor: "pointer", fontWeight: "600" }}
                         onClick={() => audioServiceInstance.playAudio(latestAudioUrl)}
