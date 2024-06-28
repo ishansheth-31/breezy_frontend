@@ -137,7 +137,11 @@ const ChatPage = ({
             setIsConversationFinished(finished);
             resolve(response);
       
-            AudioService.playAudio(audioUrl);
+            // Add a button or other user-interactive element to play the audio
+            const playButton = document.createElement('button');
+            playButton.innerText = "Play Audio";
+            playButton.onclick = () => AudioService.playAudio(audioUrl);
+            document.body.appendChild(playButton);
           });
         });
     };

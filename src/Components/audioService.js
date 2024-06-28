@@ -66,8 +66,6 @@ class AudioService {
     }
   }
   
-  const instance = new AudioService();
-  Object.freeze(instance);
-  
+  const instance = new AudioService();  
   export default instance;
   
