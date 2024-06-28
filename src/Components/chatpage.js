@@ -146,6 +146,8 @@ const ChatPage = ({
             setTranscription(data.transcription);
         });
 
+        const transcriptionResponseProcessed = new Event('transcriptionResponseProcessed');
+
         socketIo.on("transcription_response", async (data) => {
             console.log("Transcription response received:", data);
             const { user_message, response, finished } = data;
@@ -163,6 +165,8 @@ const ChatPage = ({
             setIsProcessing(false);
             setLoading(false);
             setIsConversationFinished(finished);
+
+            window.dispatchEvent(transcriptionResponseProcessed);
         });
 
         return () => {
@@ -211,20 +215,40 @@ const ChatPage = ({
     };
 
     const stopRecording = () => {
-        setIsProcessing(true);
-        setLoading(true);
-        if (microphone) {
+        return new Promise((resolve) => {
+          setIsProcessing(true);
+          setLoading(true);
+          if (microphone) {
             microphone.stop();
             microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
-        }
-        setIsProcessing(false);
-        return new Promise((resolve) => {
-            socket.emit("toggle_transcription", { action: "stop", patient_id }, () => {
-              setIsProcessing(false);
-              resolve();
-            });
-          });        
+          }
+      
+          const handleTranscriptionResponse = (data) => {
+            console.log("Transcription response received:", data);
+            const { user_message, response, finished } = data;
+      
+            setChatHistory((prevHistory) => [
+              ...prevHistory,
+              { role: "user", content: user_message },
+              { role: "assistant", content: response },
+            ]);
+            console.log("Response 1", response);
+            updateResponse(response);
+            console.log("Current response", currentResponse);
+      
+            setIsProcessing(false);
+            setLoading(false);
+            setIsConversationFinished(finished);
+      
+            socket.off("transcription_response", handleTranscriptionResponse);
+            resolve();
+          };
+      
+          socket.on("transcription_response", handleTranscriptionResponse);
+      
+          socket.emit("toggle_transcription", { action: "stop", patient_id });
+        });
     };
 
     useEffect(() => {
@@ -372,7 +396,7 @@ const ChatPage = ({
                                             stopRecording().then(() => {
                                                 console.log("Response: ", currentResponse);
                                                 fetchAndPlayAudio(currentResponse);
-                                              });
+                                            });
                                         }
                                     }}
                                     disabled={isProcessing}
