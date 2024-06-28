@@ -219,7 +219,12 @@ const ChatPage = ({
             setMicrophone(null);
         }
         setIsProcessing(false);
-        socket.emit("toggle_transcription", { action: "stop", patient_id });
+        return new Promise((resolve) => {
+            socket.emit("toggle_transcription", { action: "stop", patient_id }, () => {
+              setIsProcessing(false);
+              resolve();
+            });
+          });        
     };
 
     useEffect(() => {
