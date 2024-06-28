@@ -104,7 +104,7 @@ const ChatPage = ({
         }
     
         try {
-            socket.emit("toggle_transcription", { action: "stop", patient_id });
+            const data = socket.emit("toggle_transcription", { action: "stop", patient_id });
     
             // Handle server response
             if (data.error) {
