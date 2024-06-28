@@ -19,7 +19,7 @@ class AudioService {
         text: responseText,
         model_id: "eleven_turbo_v2",
         voice_settings: {
-          stability: 60,
+          stability: 1,
           similarity_boost: 0,
         },
       }),
