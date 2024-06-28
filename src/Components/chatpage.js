@@ -138,7 +138,6 @@ const ChatPage = ({
             resolve(response);
       
             AudioService.playAudio(audioUrl);
-            document.body.appendChild(playButton);
           });
         });
     };
