@@ -30,6 +30,7 @@ const ChatPage = ({
     const [isFetchingReport, setIsFetchingReport] = useState(false);
     const [currentResponse, setCurrentResponse] = useState("");
     const [latestAudioUrl, setLatestAudioUrl] = useState("");
+    const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
     useEffect(() => {
         const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
@@ -142,6 +143,12 @@ const ChatPage = ({
         });
     };
 
+    const handlePlayAudio = async () => {
+        setIsPlayingAudio(true);
+        await audioServiceInstance.playAudio(latestAudioUrl);
+        setIsPlayingAudio(false);
+    };
+
     useEffect(() => {
         if (socket) {
             socket.on("transcription_update", (data) => {
@@ -188,7 +195,7 @@ const ChatPage = ({
             <div style={{ display: "flex", width: "100%", height: "10%", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
                 {!isConversationFinished && (
                     <div style={{ display: "flex", height: "100%", width: "100%", justifyContent: "center", alignItems: "center" }}>
-                        {!loading && !isFetchingReport && (
+                        {!loading && !isFetchingReport && !isPlayingAudio && (
                             <>
                                 <button
                                     style={{ borderColor: "#65C6FF", color: "#ffffff", borderRadius: "20px", padding: "10px 20px 10px 20px", border: "0px", backgroundColor: "#94d1f2", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
@@ -206,7 +213,7 @@ const ChatPage = ({
                                 </button>
                             </>
                         )}
-                        {loading && <CircularProgress />}
+                        {(loading || isPlayingAudio) && <CircularProgress />}
                     </div>
                 )}
                 {isConversationFinished && (
@@ -223,10 +230,10 @@ const ChatPage = ({
                         )}
                     </div>
                 )}
-                {!isRecording && !loading && latestAudioUrl && (
+                {!isRecording && !loading && !isPlayingAudio && latestAudioUrl && (
                     <button
                         style={{ marginTop: "10px", padding: "10px 20px", border: "none", borderRadius: "10px", backgroundColor: "#94d1f2", color: "#fff", cursor: "pointer", fontWeight: "600" }}
-                        onClick={() => audioServiceInstance.playAudio(latestAudioUrl)}
+                        onClick={handlePlayAudio}
                     >
                         Play Audio
                     </button>
