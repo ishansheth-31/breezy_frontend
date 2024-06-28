@@ -58,7 +58,7 @@ const ChatPage = ({
 
     const splitTextIntoChunks = (text, chunkSize = 150) => {
         const chunks = [];
-        for (let i = 0; i < text.length; i += chunkSize) {
+        for (let i = 0; text && i < text.length; i += chunkSize) {
             chunks.push(text.substring(i, i + chunkSize));
         }
         return chunks;
@@ -121,7 +121,7 @@ const ChatPage = ({
             const audio = new Audio(audioUrl);
             audio.onended = () => {
                 resolve();
-                audio.src = '';
+                audio.src = "";
             };
             audio.onerror = (error) => {
                 console.error("Error playing the audio:", error);
@@ -159,10 +159,12 @@ const ChatPage = ({
             updateResponse(response); // Update the current response
             console.log("Current response", currentResponse);
 
-            // await fetchAndPlayAudio(response);
             setIsProcessing(false);
             setLoading(false);
             setIsConversationFinished(finished);
+
+            console.log("Response: ", response);
+            await fetchAndPlayAudio(response);
         });
 
         return () => {
@@ -365,8 +367,6 @@ const ChatPage = ({
                                             startRecording();
                                         } else {
                                             stopRecording();
-                                            console.log("Response: ", currentResponse);
-        fetchAndPlayAudio(currentResponse);
                                         }
                                     }}
                                     disabled={isProcessing}
