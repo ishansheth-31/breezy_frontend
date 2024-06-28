@@ -220,7 +220,7 @@ const ChatPage = ({
         }
         setIsProcessing(false);
         return new Promise((resolve) => {
-            socket.emit("toggle_transcription", { action: "stop", patient_id }, () => {
+            socket.emit("toggle_transcription", { action: "stop", patient_id }, (data) => {
                 if (data.error) {
                     console.error(data.error);
                     setIsProcessing(false);
