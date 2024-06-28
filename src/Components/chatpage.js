@@ -29,6 +29,7 @@ const ChatPage = ({
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFetchingReport, setIsFetchingReport] = useState(false);
     const [currentResponse, setCurrentResponse] = useState("");
+    const [latestAudioUrl, setLatestAudioUrl] = useState("");
 
     useEffect(() => {
         const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
@@ -131,17 +132,12 @@ const ChatPage = ({
                 ]);
                 console.log("Response: ", response);
                 const audioUrl = await audioServiceInstance.fetchAudio(response);  // Get the audio URL
+                setLatestAudioUrl(audioUrl);  // Set the latest audio URL
                 updateResponse(response);
                 setIsProcessing(false);
                 setLoading(false);
                 setIsConversationFinished(finished);
                 resolve(response);
-
-                // Add a button or other user-interactive element to play the audio
-                const playButton = document.createElement('button');
-                playButton.innerText = "Play Audio";
-                playButton.onclick = () => audioServiceInstance.playAudio(audioUrl);
-                document.body.appendChild(playButton);
             });
         });
     };
@@ -226,6 +222,14 @@ const ChatPage = ({
                             </p>
                         )}
                     </div>
+                )}
+                {latestAudioUrl && (
+                    <button
+                        style={{ marginTop: "10px", padding: "10px 20px", border: "none", borderRadius: "10px", backgroundColor: "#94d1f2", color: "#fff", cursor: "pointer", fontWeight: "600" }}
+                        onClick={() => audioServiceInstance.playAudio(latestAudioUrl)}
+                    >
+                        Play Audio
+                    </button>
                 )}
             </div>
         </div>
