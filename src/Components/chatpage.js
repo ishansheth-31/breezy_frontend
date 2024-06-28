@@ -125,6 +125,7 @@ const ChatPage = ({
                 }
 
                 const { user_message, response, finished } = data;
+                console.log("data recieved");
 
                 setChatHistory((prevHistory) => [
                     ...prevHistory,
