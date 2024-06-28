@@ -15,12 +15,6 @@ const ChatPage = ({
 }) => {
     const chatHistoryRef = useRef(null);
 
-    useEffect(() => {
-        if (chatHistoryRef.current) {
-            chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
-        }
-    }, [chatHistory]);
-
     const [isConversationFinished, setIsConversationFinished] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [transcription, setTranscription] = useState("Realtime speech transcription");
@@ -30,10 +24,18 @@ const ChatPage = ({
     const [isFetchingReport, setIsFetchingReport] = useState(false);
     const [currentResponse, setCurrentResponse] = useState("");
 
+    // Consolidate useEffect hooks
     useEffect(() => {
+        // Initialize Web Socket
         const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
         setSocket(socketIo);
 
+        // Scroll Chat History to Bottom
+        if (chatHistoryRef.current) {
+            chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+        }
+
+        // Web Socket Event Handlers
         socketIo.on("transcription_update", (data) => {
             setTranscription(data.transcription);
         });
@@ -49,12 +51,25 @@ const ChatPage = ({
             setIsProcessing(false);
             setLoading(false);
             setIsConversationFinished(finished);
+
+            const audioUrl = await AudioService.fetchAudio(response);
+            await AudioService.playAudio(audioUrl);
+        });
+
+        socketIo.on("error", (data) => {
+            console.error("Socket error:", data.error);
+            alert(data.error);
+        });
+
+        socketIo.on("report_generated", (data) => {
+            setIsConversationFinished(true);
+            fetchReport();
         });
 
         return () => {
             socketIo.disconnect();
         };
-    }, []);
+    }, [chatHistory]);
 
     const fetchReport = async () => {
         try {
@@ -107,68 +122,40 @@ const ChatPage = ({
         setIsProcessing(true);
         setLoading(true);
         if (microphone) {
-          microphone.stop();
-          microphone.stream.getTracks().forEach((track) => track.stop());
-          setMicrophone(null);
+            microphone.stop();
+            microphone.stream.getTracks().forEach((track) => track.stop());
+            setMicrophone(null);
         }
         setIsProcessing(false);
         return new Promise((resolve) => {
-          socket.emit("toggle_transcription", { action: "stop", patient_id }, async (data) => {
-            if (data.error) {
-              console.error(data.error);
-              setIsProcessing(false);
-              setLoading(false);
-              resolve();
-              return;
-            }
-      
-            const { user_message, response, finished } = data;
-      
-            setChatHistory((prevHistory) => [
-              ...prevHistory,
-              { role: "user", content: user_message },
-              { role: "assistant", content: response },
-            ]);
-            console.log("Response: ", response);
-            const audioUrl = await AudioService.fetchAudio(response);  // Get the audio URL
-            updateResponse(response);
-            setIsProcessing(false);
-            setLoading(false);
-            setIsConversationFinished(finished);
-            resolve(response);
-      
-            // Add a button or other user-interactive element to play the audio
-            const playButton = document.createElement('button');
-            playButton.innerText = "Play Audio";
-            playButton.onclick = () => AudioService.playAudio(audioUrl);
-            document.body.appendChild(playButton);
-          });
+            socket.emit("toggle_transcription", { action: "stop", patient_id }, async (data) => {
+                if (data.error) {
+                    console.error(data.error);
+                    setIsProcessing(false);
+                    setLoading(false);
+                    resolve();
+                    return;
+                }
+
+                const { user_message, response, finished } = data;
+
+                setChatHistory((prevHistory) => [
+                    ...prevHistory,
+                    { role: "user", content: user_message },
+                    { role: "assistant", content: response },
+                ]);
+                console.log("Response: ", response);
+                const audioUrl = await AudioService.fetchAudio(response);
+                updateResponse(response);
+                setIsProcessing(false);
+                setLoading(false);
+                setIsConversationFinished(finished);
+                resolve(response);
+
+                await AudioService.playAudio(audioUrl);
+            });
         });
     };
-
-    useEffect(() => {
-        if (socket) {
-            socket.on("transcription_update", (data) => {
-                setTranscription(data.transcription);
-            });
-
-            socket.on("error", (data) => {
-                console.error("Socket error:", data.error);
-                alert(data.error);
-            });
-
-            socket.on("report_generated", (data) => {
-                setIsConversationFinished(true);
-                fetchReport();
-            });
-
-            return () => {
-                socket.off("transcription_update");
-                socket.off("error");
-                socket.off("report_generated");
-            };
-        }
-    }, [socket]);
 
     return (
         <div style={{ display: "flex", width: "100%", flexDirection: "column", padding: "15px", alignItems: "start" }}>
