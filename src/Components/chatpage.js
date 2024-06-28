@@ -373,8 +373,8 @@ const ChatPage = ({
                                                 setTimeout(() => {
                                                     console.log("Response: ", currentResponse);
                                                     fetchAndPlayAudio(currentResponse);
-                                                });
-                                            }, 10000);
+                                                }, 10000);
+                                            });
                                         }
                                     }}
                                     disabled={isProcessing}
