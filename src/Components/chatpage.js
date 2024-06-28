@@ -33,6 +33,10 @@ const ChatPage = ({
     const [isFetchingReport, setIsFetchingReport] = useState(false);
     const [currentResponse, setCurrentResponse] = useState("");
 
+    useEffect(() => {
+        console.log("Current response updated", currentResponse);
+    }, [currentResponse]);
+
     const fetchReport = async () => {
         try {
             setLoading(true);
@@ -50,7 +54,7 @@ const ChatPage = ({
 
     const updateResponse = (response) => {
         setCurrentResponse(response);
-    }
+    };
 
     const splitTextIntoChunks = (text, chunkSize = 150) => {
         const chunks = [];
@@ -59,7 +63,7 @@ const ChatPage = ({
         }
         return chunks;
     };
-    
+
     const fetchAndPlayAudio = async (responseText) => {
         console.log("Fetching and playing audio for text:", responseText);
         const options = {
@@ -69,53 +73,49 @@ const ChatPage = ({
                 "Content-Type": "application/json",
             },
         };
-    
-        // const textChunks = splitTextIntoChunks(responseText);
-    
-        // for (const chunk of textChunks) {
-            console.log("Processing chunk:", responseText);
-            const requestOptions = {
-                ...options,
-                body: JSON.stringify({
-                    text: responseText,
-                    voice_settings: {
-                        stability: 1,
-                        similarity_boost: 0,
-                    },
-                }),
-            };
-    
-            try {
-                const apiResponse = await fetch(
-                    "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream",
-                    requestOptions
+
+        console.log("Processing chunk:", responseText);
+        const requestOptions = {
+            ...options,
+            body: JSON.stringify({
+                text: responseText,
+                voice_settings: {
+                    stability: 1,
+                    similarity_boost: 0,
+                },
+            }),
+        };
+
+        try {
+            const apiResponse = await fetch(
+                "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream",
+                requestOptions
+            );
+            if (!apiResponse.ok)
+                throw new Error(
+                    `API response not OK, status: ${apiResponse.status}`
                 );
-                if (!apiResponse.ok)
-                    throw new Error(
-                        `API response not OK, status: ${apiResponse.status}`
-                    );
-    
-                const contentType = apiResponse.headers.get("content-type");
-                if (contentType && contentType.startsWith("audio/")) {
-                    const blob = await apiResponse.blob();
-                    const url = URL.createObjectURL(blob);
-                    await playAudioFromUrl(url);
-                    URL.revokeObjectURL(url);
-                } else if (
-                    contentType &&
-                    contentType.includes("application/json")
-                ) {
-                    const json = await apiResponse.json();
-                    console.error("Expected audio, got JSON:", json);
-                } else {
-                    throw new Error("Unexpected content type: " + contentType);
-                }
-            } catch (err) {
-                console.error("Error fetching TTS data:", err);
+
+            const contentType = apiResponse.headers.get("content-type");
+            if (contentType && contentType.startsWith("audio/")) {
+                const blob = await apiResponse.blob();
+                const url = URL.createObjectURL(blob);
+                await playAudioFromUrl(url);
+                URL.revokeObjectURL(url);
+            } else if (
+                contentType &&
+                contentType.includes("application/json")
+            ) {
+                const json = await apiResponse.json();
+                console.error("Expected audio, got JSON:", json);
+            } else {
+                throw new Error("Unexpected content type: " + contentType);
             }
-        // }
+        } catch (err) {
+            console.error("Error fetching TTS data:", err);
+        }
     };
-    
+
     const playAudioFromUrl = (audioUrl) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio(audioUrl);
@@ -133,7 +133,7 @@ const ChatPage = ({
             });
         });
     };
-    
+
     useEffect(() => {
         const socketIo = io(
             "https://breezy-backend-de177311f71b.herokuapp.com"
