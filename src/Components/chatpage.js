@@ -48,6 +48,10 @@ const ChatPage = ({
         }
     };
 
+    const updateResponse = () => {
+        setCurrentResponse(response);
+    }
+
     const splitTextIntoChunks = (text, chunkSize = 150) => {
         const chunks = [];
         for (let i = 0; i < text.length; i += chunkSize) {
@@ -152,7 +156,7 @@ const ChatPage = ({
                 { role: "assistant", content: response },
             ]);
             console.log("Response 1", response);
-            currentResponse = response; // Update the current response
+            setCurrentResponse(); // Update the current response
             console.log("Current response", currentResponse);
 
             // await fetchAndPlayAudio(response);
@@ -362,7 +366,7 @@ const ChatPage = ({
                                             );
                                             startRecording();
                                         } else {
-                                            stopRecording()
+                                            stopRecording();
                                         }
                                     }}
                                     disabled={isProcessing}
