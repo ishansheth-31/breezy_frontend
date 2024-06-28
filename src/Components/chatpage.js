@@ -104,10 +104,7 @@ const ChatPage = ({
         }
     
         try {
-            // Emit stop transcription event to the server
-            const data = await new Promise((resolve) => {
-                socket.emit("toggle_transcription", { action: "stop", patient_id }, resolve);
-            });
+            socket.emit("toggle_transcription", { action: "stop", patient_id });
     
             // Handle server response
             if (data.error) {
