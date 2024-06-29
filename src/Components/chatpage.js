@@ -65,35 +65,24 @@ const ChatPage = ({
 
     const getMicrophone = async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: true,
-            });
-            console.log("Microphone accessed");
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const mimeType = MediaRecorder.isTypeSupported("audio/mp4")
                 ? "audio/mp4"
                 : "audio/webm";
             const mic = new MediaRecorder(stream, { mimeType: mimeType });
             mic.ondataavailable = async (event) => {
                 if (event.data.size > 0 && socket) {
-                    console.log("Audio data available, sending to socket");
-                    socket.emit("audio_stream", event.data, patient_id);
+                    socket.emit("audio_stream", event.data);
                 }
             };
-            mic.onstart = () => {
-                setIsRecording(true);
-                console.log("Recording started");
-            };
-            mic.onstop = () => {
-                setIsRecording(false);
-                console.log("Recording stopped");
-            };
+            mic.onstart = () => setIsRecording(true);
+            mic.onstop = () => setIsRecording(false);
             return mic;
         } catch (error) {
             console.error("Error accessing microphone:", error);
             throw error;
         }
     };
-    
 
     const startRecording = async () => {
         setIsProcessing(true);
