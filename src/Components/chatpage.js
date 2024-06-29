@@ -103,8 +103,22 @@ const ChatPage = ({
             setMicrophone(null);
         }
     
+        // Signal the backend to stop transcription
         socket.emit("toggle_transcription", { action: "stop", patient_id });
+    
+        // Wait for all pending audio chunks to be processed
+        const checkPendingAudio = () => {
+            if (socket.pendingAudioChunks === 0) {
+                // All audio chunks processed, proceed to generate the response
+                socket.emit("generate_response", { patient_id });
+            } else {
+                // Check again after a short delay
+                setTimeout(checkPendingAudio, 100);
+            }
+        };
+        checkPendingAudio();
     };
+    
     
 
     const handlePlayAudio = async () => {
