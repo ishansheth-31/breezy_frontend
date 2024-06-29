@@ -119,7 +119,7 @@ const ChatPage = ({
                 setTranscription(data.transcription);
             });
 
-            socketIo.on("transcription_response", async (data) => {
+            socket.on("transcription_response", async (data) => {
                 const { user_message, response, finished } = data;
                 setChatHistory((prevHistory) => [
                     ...prevHistory,
