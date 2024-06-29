@@ -103,42 +103,7 @@ const ChatPage = ({
             setMicrophone(null);
         }
     
-        try {
-            const data = socket.emit("toggle_transcription", { action: "stop", patient_id });
-    
-            // Handle server response
-            if (data.error) {
-                console.error(data.error);
-                setIsProcessing(false);
-                setLoading(false);
-                return;
-            }
-    
-            const { user_message, response, finished } = data;
-    
-            // Update chat history
-            setChatHistory((prevHistory) => [
-                ...prevHistory,
-                { role: "user", content: user_message },
-                { role: "assistant", content: response },
-            ]);
-    
-            // Fetch audio URL asynchronously
-            const audioUrl = await audioServiceInstance.fetchAudio(response);
-    
-            // Update latest audio URL and response state
-            setLatestAudioUrl(audioUrl);
-            updateResponse(response);
-    
-            // Update loading and processing states
-            setLoading(false);
-            setIsProcessing(false);
-            setIsConversationFinished(finished);
-        } catch (error) {
-            console.error("Error stopping recording:", error);
-            setIsProcessing(false);
-            setLoading(false);
-        }
+        socket.emit("toggle_transcription", { action: "stop", patient_id });
     };
     
 
@@ -152,6 +117,21 @@ const ChatPage = ({
         if (socket) {
             socket.on("transcription_update", (data) => {
                 setTranscription(data.transcription);
+            });
+
+            socketIo.on("transcription_response", async (data) => {
+                const { user_message, response, finished } = data;
+                setChatHistory((prevHistory) => [
+                    ...prevHistory,
+                    { role: "user", content: user_message },
+                    { role: "assistant", content: response },
+                ]);
+                const audioUrl = await audioServiceInstance.fetchAudio(response);
+                setLatestAudioUrl(audioUrl);
+                updateResponse(response);
+                setLoading(false);
+                setIsProcessing(false);
+                setIsConversationFinished(finished);
             });
 
             socket.on("error", (data) => {
