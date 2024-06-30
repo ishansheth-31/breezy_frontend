@@ -126,6 +126,13 @@ const ChatPage = ({
                 setIsConversationFinished(finished);
             });
 
+            socket.on("current_transcript", (data) => {
+                const { full_transcript } = data;
+                if (!full_transcript.trim()) {
+                    setIsProcessing(false);
+                }
+            });
+
             socket.on("error", (data) => {
                 console.error("Socket error:", data.error);
                 alert(data.error);
