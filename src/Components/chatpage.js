@@ -166,7 +166,7 @@ const ChatPage = ({
                     ))}
                 </div>
             </div>
-            <div style={{ display: "flex", width: "100%", height: "10%", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+            <div style={{ display: "flex", width: "100%", height: "10%", alignItems: "center", justifyContent: "center", flexDirection: "column", marginTop: "20px" }}>
                 {!isConversationFinished && (
                     <div style={{ display: "flex", height: "100%", width: "100%", justifyContent: "center", alignItems: "center" }}>
                         {!loading && !isFetchingReport && !isPlayingAudio && (
@@ -194,7 +194,7 @@ const ChatPage = ({
                     <div style={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center", flexDirection: "column", textAlign: "center" }}>
                         {isFetchingReport && (
                             <p style={{ fontWeight: "600", marginBottom: "10px" }}>
-                                Conversation finished, please wait a few moments!
+                                Conversation finished, please wait for your report to generate!
                             </p>
                         )}
                         {!isFetchingReport && (
