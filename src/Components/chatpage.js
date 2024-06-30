@@ -194,7 +194,7 @@ const ChatPage = ({
                     <div style={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center", flexDirection: "column", textAlign: "center" }}>
                         {isFetchingReport && (
                             <p style={{ fontWeight: "600", marginBottom: "10px" }}>
-                                Conversation finished, please wait for your report to generate!
+                                Conversation finished, please wait a few moments!
                             </p>
                         )}
                         {!isFetchingReport && (
