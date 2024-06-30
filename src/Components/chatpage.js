@@ -124,6 +124,9 @@ const ChatPage = ({
                 const audioUrl = await audioServiceInstance.fetchAudio(response);
                 setLatestAudioUrl(audioUrl);
                 updateResponse(response);
+                setIsPlayingAudio(true);
+                await audioServiceInstance.playAudio(latestAudioUrl);
+                setIsPlayingAudio(false);
                 setLoading(false);
                 setIsProcessing(false);
                 setIsTranscriptProcessing(false);
