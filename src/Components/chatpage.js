@@ -32,6 +32,7 @@ const ChatPage = ({
     const [isPlayingAudio, setIsPlayingAudio] = useState(false);
     const [fullTranscript, setFullTranscript] = useState("");
     const [isTranscriptProcessing, setIsTranscriptProcessing] = useState(false);
+    const [isReportGenerating, setIsReportGenerating] = useState(false); // New state for report generation message
 
     useEffect(() => {
         const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
@@ -45,6 +46,7 @@ const ChatPage = ({
     const fetchReport = async () => {
         try {
             setLoading(true);
+            setIsReportGenerating(true); // Set to true when fetching the report
             const response = await axios.get(
                 `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
             );
@@ -53,6 +55,7 @@ const ChatPage = ({
             console.error("Error fetching report:", error);
         } finally {
             setLoading(false);
+            setIsReportGenerating(false); // Set to false after the report is fetched
         }
     };
 
@@ -203,7 +206,16 @@ const ChatPage = ({
                                 )}
                             </>
                         )}
-                        {(loading || isPlayingAudio) && <CircularProgress />}
+                        {(loading || isPlayingAudio) && (
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                <CircularProgress />
+                                {isReportGenerating && ( // Show the message when the report is being generated
+                                    <p style={{ marginTop: "10px", fontWeight: "600", color: "#94d1f2" }}>
+                                        Please hold on while your report is being generated
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
                 {isConversationFinished && (
