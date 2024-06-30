@@ -130,6 +130,7 @@ const ChatPage = ({
             socket.on("current_transcript", (data) => {
                 const { full_transcript } = data;
                 setFullTranscript(full_transcript);
+                setIsTranscriptProcessing(false);  // Ensure to stop processing when the transcript is received
             });
 
             socket.on("error", (data) => {
