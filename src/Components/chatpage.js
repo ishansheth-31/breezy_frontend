@@ -30,6 +30,7 @@ const ChatPage = ({
     const [currentResponse, setCurrentResponse] = useState("");
     const [latestAudioUrl, setLatestAudioUrl] = useState("");
     const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+    const [transcriptNotEmpty, setTranscriptNotEmpty] = useState(false);
 
     useEffect(() => {
         const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
@@ -90,17 +91,15 @@ const ChatPage = ({
     const stopRecording = async () => {
         setIsProcessing(true);
         setLoading(true);
-    
-        // Stop the microphone and clear its tracks
+
         if (microphone) {
             microphone.stop();
             microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
         }
-    
+
         socket.emit("toggle_transcription", { action: "stop", patient_id });
     };
-    
 
     const handlePlayAudio = async () => {
         setIsPlayingAudio(true);
@@ -110,7 +109,6 @@ const ChatPage = ({
 
     useEffect(() => {
         if (socket) {
-
             socket.on("transcription_response", async (data) => {
                 const { user_message, response, finished } = data;
                 setChatHistory((prevHistory) => [
@@ -128,8 +126,10 @@ const ChatPage = ({
 
             socket.on("current_transcript", (data) => {
                 const { full_transcript } = data;
-                if (!full_transcript.trim()) {
-                    setIsProcessing(false);
+                if (full_transcript.trim()) {
+                    setTranscriptNotEmpty(true);
+                } else {
+                    setTranscriptNotEmpty(false);
                 }
             });
 
@@ -146,6 +146,7 @@ const ChatPage = ({
             return () => {
                 socket.off("error");
                 socket.off("report_generated");
+                socket.off("current_transcript");
             };
         }
     }, [socket]);
@@ -180,7 +181,7 @@ const ChatPage = ({
                                         if (!isRecording && !isProcessing) {
                                             socket.emit("toggle_transcription", { action: "start" });
                                             startRecording();
-                                        } else {
+                                        } else if (transcriptNotEmpty) {
                                             stopRecording();
                                         }
                                     }}
