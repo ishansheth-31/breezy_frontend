@@ -31,7 +31,7 @@ const ChatPage = ({
     const [isPlayingAudio, setIsPlayingAudio] = useState(false);
     const [fullTranscript, setFullTranscript] = useState("");
     const [isTranscriptProcessing, setIsTranscriptProcessing] = useState(false);
-    const [isReportGenerating, setIsReportGenerating] = useState(false); // New state for report generation message
+    const [isReportGenerating, setIsReportGenerating] = useState(false);
 
     useEffect(() => {
         const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
@@ -45,7 +45,7 @@ const ChatPage = ({
     const fetchReport = async () => {
         try {
             setLoading(true);
-            setIsReportGenerating(true); // Set to true when fetching the report
+            setIsReportGenerating(true);
             const response = await axios.get(
                 `https://breezy-backend-de177311f71b.herokuapp.com/report/${patient_id}`
             );
@@ -54,7 +54,7 @@ const ChatPage = ({
             console.error("Error fetching report:", error);
         } finally {
             setLoading(false);
-            setIsReportGenerating(false); // Set to false after the report is fetched
+            setIsReportGenerating(false);
         }
     };
 
@@ -106,9 +106,14 @@ const ChatPage = ({
     };
 
     const handlePlayAudio = async (audioUrl) => {
-        setIsPlayingAudio(true);
-        await audioServiceInstance.playAudio(audioUrl);
-        setIsPlayingAudio(false);
+        try {
+            setIsPlayingAudio(true);
+            await audioServiceInstance.playAudio(audioUrl);
+        } catch (error) {
+            console.error("Error playing audio:", error);
+        } finally {
+            setIsPlayingAudio(false);
+        }
     };
 
     useEffect(() => {
@@ -128,15 +133,24 @@ const ChatPage = ({
                 setIsTranscriptProcessing(false);
 
                 if (audioUrl) {
-                    handlePlayAudio(audioUrl);  // Automatically play the nurse's response
+                    try {
+                        await handlePlayAudio(audioUrl);  // Play the nurse's response
+                    } catch (error) {
+                        console.error("Error playing audio:", error);
+                    }
                 }
+
                 setIsConversationFinished(finished);
+
+                if (finished) {
+                    fetchReport();  // Generate the report after the conversation is finished
+                }
             });
 
             socket.on("current_transcript", (data) => {
                 const { full_transcript } = data;
                 setFullTranscript(full_transcript);
-                setIsTranscriptProcessing(false);  // Ensure to stop processing when the transcript is received
+                setIsTranscriptProcessing(false);
             });
 
             socket.on("error", (data) => {
@@ -206,7 +220,7 @@ const ChatPage = ({
                         {(loading || isPlayingAudio) && (
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <CircularProgress />
-                                {isReportGenerating && ( // Show the message when the report is being generated
+                                {isReportGenerating && (
                                     <p style={{ marginTop: "10px", fontWeight: "600", color: "#94d1f2" }}>
                                         Please hold on while your report is being generated
                                     </p>
@@ -217,12 +231,11 @@ const ChatPage = ({
                 )}
                 {isConversationFinished && (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        {isReportGenerating && (
+                        {isReportGenerating ? (
                             <p style={{ fontWeight: "600", marginBottom: "10px" }}>
                                 Conversation finished, please wait for your report to generate!
                             </p>
-                        )}
-                        {!isReportGenerating && (
+                        ) : (
                             <p style={{ fontWeight: "600", marginBottom: "10px" }}>
                                 Conversation finished! You may leave this page!
                             </p>
