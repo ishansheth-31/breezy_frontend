@@ -30,7 +30,7 @@ const ChatPage = ({
     const [currentResponse, setCurrentResponse] = useState("");
     const [latestAudioUrl, setLatestAudioUrl] = useState("");
     const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-    const [transcriptNotEmpty, setTranscriptNotEmpty] = useState(false);
+    const [fullTranscript, setFullTranscript] = useState("");
 
     useEffect(() => {
         const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
@@ -91,13 +91,13 @@ const ChatPage = ({
     const stopRecording = async () => {
         setIsProcessing(true);
         setLoading(true);
-
+    
         if (microphone) {
             microphone.stop();
             microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
         }
-
+    
         socket.emit("toggle_transcription", { action: "stop", patient_id });
     };
 
@@ -126,11 +126,7 @@ const ChatPage = ({
 
             socket.on("current_transcript", (data) => {
                 const { full_transcript } = data;
-                if (full_transcript.trim()) {
-                    setTranscriptNotEmpty(true);
-                } else {
-                    setTranscriptNotEmpty(false);
-                }
+                setFullTranscript(full_transcript);
             });
 
             socket.on("error", (data) => {
@@ -181,11 +177,11 @@ const ChatPage = ({
                                         if (!isRecording && !isProcessing) {
                                             socket.emit("toggle_transcription", { action: "start" });
                                             startRecording();
-                                        } else if (transcriptNotEmpty) {
+                                        } else {
                                             stopRecording();
                                         }
                                     }}
-                                    disabled={isProcessing}
+                                    disabled={isProcessing || (isRecording && !fullTranscript.trim())}
                                 >
                                     {isRecording ? <StopIcon /> : <KeyboardVoiceIcon />}
                                 </button>
