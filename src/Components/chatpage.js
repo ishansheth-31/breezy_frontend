@@ -106,9 +106,9 @@ const ChatPage = ({
         socket.emit("toggle_transcription", { action: "stop", patient_id });
     };
 
-    const handlePlayAudio = async () => {
+    const handlePlayAudio = async (audioUrl) => {
         setIsPlayingAudio(true);
-        await audioServiceInstance.playAudio(latestAudioUrl);
+        await audioServiceInstance.playAudio(audioUrl);
         setIsPlayingAudio(false);
     };
 
@@ -124,13 +124,14 @@ const ChatPage = ({
                 const audioUrl = await audioServiceInstance.fetchAudio(response);
                 setLatestAudioUrl(audioUrl);
                 updateResponse(response);
-                setIsPlayingAudio(true);
-                await audioServiceInstance.playAudio(latestAudioUrl);
-                setIsPlayingAudio(false);
                 setLoading(false);
                 setIsProcessing(false);
                 setIsTranscriptProcessing(false);
                 setIsConversationFinished(finished);
+
+                if (audioUrl) {
+                    handlePlayAudio(audioUrl);  // Automatically play the nurse's response
+                }
             });
 
             socket.on("current_transcript", (data) => {
@@ -234,14 +235,6 @@ const ChatPage = ({
                             </p>
                         )}
                     </div>
-                )}
-                {!isRecording && !loading && !isPlayingAudio && latestAudioUrl && (
-                    <button
-                        style={{ marginTop: "10px", padding: "10px 20px", border: "none", borderRadius: "10px", backgroundColor: "#94d1f2", color: "#fff", cursor: "pointer", fontWeight: "600" }}
-                        onClick={handlePlayAudio}
-                    >
-                        Play Audio
-                    </button>
                 )}
             </div>
         </div>
