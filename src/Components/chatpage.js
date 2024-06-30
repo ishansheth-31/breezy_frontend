@@ -146,7 +146,6 @@ const ChatPage = ({
 
             return () => {
                 socket.off("error");
-                socket.off("report_generated");
                 socket.off("current_transcript");
             };
         }
