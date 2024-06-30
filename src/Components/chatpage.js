@@ -126,11 +126,11 @@ const ChatPage = ({
                 setLoading(false);
                 setIsProcessing(false);
                 setIsTranscriptProcessing(false);
-                setIsConversationFinished(finished);
 
                 if (audioUrl) {
                     handlePlayAudio(audioUrl);  // Automatically play the nurse's response
                 }
+                setIsConversationFinished(finished);
             });
 
             socket.on("current_transcript", (data) => {
@@ -142,11 +142,6 @@ const ChatPage = ({
             socket.on("error", (data) => {
                 console.error("Socket error:", data.error);
                 alert(data.error);
-            });
-
-            socket.on("report_generated", (data) => {
-                setIsConversationFinished(true);
-                fetchReport();
             });
 
             return () => {
