@@ -31,6 +31,7 @@ const ChatPage = ({
     const [latestAudioUrl, setLatestAudioUrl] = useState("");
     const [isPlayingAudio, setIsPlayingAudio] = useState(false);
     const [fullTranscript, setFullTranscript] = useState("");
+    const [isTranscriptProcessing, setIsTranscriptProcessing] = useState(false);
 
     useEffect(() => {
         const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
@@ -82,6 +83,7 @@ const ChatPage = ({
 
     const startRecording = async () => {
         setIsProcessing(true);
+        setIsTranscriptProcessing(true);
         const mic = await getMicrophone();
         setMicrophone(mic);
         mic.start(1000);
@@ -91,13 +93,13 @@ const ChatPage = ({
     const stopRecording = async () => {
         setIsProcessing(true);
         setLoading(true);
-    
+
         if (microphone) {
             microphone.stop();
             microphone.stream.getTracks().forEach((track) => track.stop());
             setMicrophone(null);
         }
-    
+
         socket.emit("toggle_transcription", { action: "stop", patient_id });
     };
 
@@ -121,6 +123,7 @@ const ChatPage = ({
                 updateResponse(response);
                 setLoading(false);
                 setIsProcessing(false);
+                setIsTranscriptProcessing(false);
                 setIsConversationFinished(finished);
             });
 
@@ -166,25 +169,37 @@ const ChatPage = ({
                     ))}
                 </div>
             </div>
-            <div style={{ display: "flex", width: "100%", height: "10%", alignItems: "center", justifyContent: "center", flexDirection: "column", marginTop: "20px" }}>
+            <div style={{ display: "flex", width: "100%", height: "10%", alignItems: "center", justifyContent: "center", flexDirection: "column", marginTop: "32px" }}>
                 {!isConversationFinished && (
                     <div style={{ display: "flex", height: "100%", width: "100%", justifyContent: "center", alignItems: "center" }}>
                         {!loading && !isFetchingReport && !isPlayingAudio && (
                             <>
-                                <button
-                                    style={{ borderColor: "#65C6FF", color: "#ffffff", borderRadius: "20px", padding: "10px 20px 10px 20px", border: "0px", backgroundColor: "#94d1f2", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
-                                    onClick={() => {
-                                        if (!isRecording && !isProcessing) {
-                                            socket.emit("toggle_transcription", { action: "start" });
-                                            startRecording();
-                                        } else {
-                                            stopRecording();
-                                        }
-                                    }}
-                                    disabled={isProcessing || (isRecording && !fullTranscript.trim())}
-                                >
-                                    {isRecording ? <StopIcon /> : <KeyboardVoiceIcon />}
-                                </button>
+                                {!isRecording ? (
+                                    <button
+                                        style={{ borderColor: "#65C6FF", color: "#ffffff", borderRadius: "20px", padding: "10px 20px 10px 20px", border: "0px", backgroundColor: "#94d1f2", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                                        onClick={() => {
+                                            if (!isRecording && !isProcessing) {
+                                                socket.emit("toggle_transcription", { action: "start" });
+                                                startRecording();
+                                            }
+                                        }}
+                                        disabled={isProcessing || (isRecording && !fullTranscript.trim())}
+                                    >
+                                        <KeyboardVoiceIcon />
+                                    </button>
+                                ) : (
+                                    isTranscriptProcessing ? (
+                                        <span style={{ fontWeight: "600", color: "#94d1f2" }}>Listening...</span>
+                                    ) : (
+                                        <button
+                                            style={{ borderColor: "#65C6FF", color: "#ffffff", borderRadius: "20px", padding: "10px 20px 10px 20px", border: "0px", backgroundColor: "#94d1f2", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                                            onClick={stopRecording}
+                                            disabled={isProcessing || (isRecording && !fullTranscript.trim())}
+                                        >
+                                            <StopIcon />
+                                        </button>
+                                    )
+                                )}
                             </>
                         )}
                         {(loading || isPlayingAudio) && <CircularProgress />}
