@@ -26,7 +26,6 @@ const ChatPage = ({
     const [socket, setSocket] = useState(null);
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isFetchingReport, setIsFetchingReport] = useState(false);
     const [currentResponse, setCurrentResponse] = useState("");
     const [latestAudioUrl, setLatestAudioUrl] = useState("");
     const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -176,7 +175,7 @@ const ChatPage = ({
             <div style={{ display: "flex", width: "100%", height: "10%", alignItems: "center", justifyContent: "center", flexDirection: "column", marginTop: "32px" }}>
                 {!isConversationFinished && (
                     <div style={{ display: "flex", height: "100%", width: "100%", justifyContent: "center", alignItems: "center" }}>
-                        {!loading && !isFetchingReport && !isPlayingAudio && (
+                        {!loading && !isPlayingAudio && (
                             <>
                                 {!isRecording ? (
                                     <button
@@ -220,12 +219,12 @@ const ChatPage = ({
                 )}
                 {isConversationFinished && (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        {isFetchingReport && (
+                        {isReportGenerating && (
                             <p style={{ fontWeight: "600", marginBottom: "10px" }}>
                                 Conversation finished, please wait for your report to generate!
                             </p>
                         )}
-                        {!isFetchingReport && (
+                        {!isReportGenerating && (
                             <p style={{ fontWeight: "600", marginBottom: "10px" }}>
                                 Conversation finished! You may leave this page!
                             </p>
