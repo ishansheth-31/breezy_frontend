@@ -23,7 +23,6 @@ const ChatPage = ({
 
     const [isConversationFinished, setIsConversationFinished] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
-    const [transcription, setTranscription] = useState("Realtime speech transcription");
     const [socket, setSocket] = useState(null);
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -35,10 +34,6 @@ const ChatPage = ({
     useEffect(() => {
         const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
         setSocket(socketIo);
-
-        socketIo.on("transcription_update", (data) => {
-            setTranscription(data.transcription);
-        });
 
         return () => {
             socketIo.disconnect();
@@ -115,9 +110,6 @@ const ChatPage = ({
 
     useEffect(() => {
         if (socket) {
-            socket.on("transcription_update", (data) => {
-                setTranscription(data.transcription);
-            });
 
             socket.on("transcription_response", async (data) => {
                 const { user_message, response, finished } = data;
