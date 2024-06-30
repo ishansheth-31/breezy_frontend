@@ -166,53 +166,56 @@ const ChatPage = ({
                     ))}
                 </div>
             </div>
-            <div style={{ display: "flex", width: "100%", height: "10%", alignItems: "center", justifyContent: "center", flexDirection: "column", marginTop: "20px" }}>
-                {!isConversationFinished && (
-                    <div style={{ display: "flex", height: "100%", width: "100%", justifyContent: "center", alignItems: "center" }}>
-                        {!loading && !isFetchingReport && !isPlayingAudio && (
-                            <>
-                                <button
-                                    style={{ borderColor: "#65C6FF", color: "#ffffff", borderRadius: "20px", padding: "10px 20px 10px 20px", border: "0px", backgroundColor: "#94d1f2", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
-                                    onClick={() => {
-                                        if (!isRecording && !isProcessing) {
-                                            socket.emit("toggle_transcription", { action: "start" });
-                                            startRecording();
-                                        } else {
-                                            stopRecording();
-                                        }
-                                    }}
-                                    disabled={isProcessing || (isRecording && !fullTranscript.trim())}
-                                >
-                                    {isRecording ? <StopIcon /> : <KeyboardVoiceIcon />}
-                                </button>
-                            </>
-                        )}
-                        {(loading || isPlayingAudio) && <CircularProgress />}
-                    </div>
-                )}
-                {isConversationFinished && (
-                    <div style={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center", flexDirection: "column", textAlign: "center" }}>
-                        {isFetchingReport && (
-                            <p style={{ fontWeight: "600", marginBottom: "10px" }}>
-                                Conversation finished, please wait for your report to generate!
-                            </p>
-                        )}
-                        {!isFetchingReport && (
-                            <p style={{ fontWeight: "600", marginBottom: "10px" }}>
-                                Conversation finished! You may leave this page!
-                            </p>
-                        )}
-                    </div>
-                )}
-                {!isRecording && !loading && !isPlayingAudio && latestAudioUrl && (
-                    <button
-                        style={{ marginTop: "10px", padding: "10px 20px", border: "none", borderRadius: "10px", backgroundColor: "#94d1f2", color: "#fff", cursor: "pointer", fontWeight: "600" }}
-                        onClick={handlePlayAudio}
-                    >
-                        Play Audio
-                    </button>
-                )}
-            </div>
+            <div style={{ display: "flex", width: "100%", height: "10%", alignItems: "center", justifyContent: "center", flexDirection: "column", marginTop: "32px" }}>
+    {!isConversationFinished && (
+        <div style={{ display: "flex", height: "100%", width: "100%", justifyContent: "center", alignItems: "center" }}>
+            {!loading && !isFetchingReport && !isPlayingAudio && (
+                <>
+                    {(!isRecording || fullTranscript.trim()) && (
+                        <button
+                            style={{ borderColor: "#65C6FF", color: "#ffffff", borderRadius: "20px", padding: "10px 20px 10px 20px", border: "0px", backgroundColor: "#94d1f2", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                            onClick={() => {
+                                if (!isRecording && !isProcessing) {
+                                    socket.emit("toggle_transcription", { action: "start" });
+                                    startRecording();
+                                } else {
+                                    stopRecording();
+                                }
+                            }}
+                            disabled={isProcessing}
+                        >
+                            {isRecording ? <StopIcon /> : <KeyboardVoiceIcon />}
+                        </button>
+                    )}
+                </>
+            )}
+            {(loading || isPlayingAudio) && <CircularProgress />}
+        </div>
+    )}
+    {isConversationFinished && (
+        <div style={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center", flexDirection: "column", textAlign: "center" }}>
+            {isFetchingReport && (
+                <p style={{ fontWeight: "600", marginBottom: "10px" }}>
+                    Conversation finished, please wait for your report to generate!
+                </p>
+            )}
+            {!isFetchingReport && (
+                <p style={{ fontWeight: "600", marginBottom: "10px" }}>
+                    Conversation finished! You may leave this page!
+                </p>
+            )}
+        </div>
+    )}
+    {!isRecording && !loading && !isPlayingAudio && latestAudioUrl && (
+        <button
+            style={{ marginTop: "10px", padding: "10px 20px", border: "none", borderRadius: "10px", backgroundColor: "#94d1f2", color: "#fff", cursor: "pointer", fontWeight: "600" }}
+            onClick={handlePlayAudio}
+        >
+            Play Audio
+        </button>
+    )}
+</div>
+
         </div>
     );
 };
