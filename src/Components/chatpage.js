@@ -233,10 +233,10 @@ const ChatPage = ({
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                         {isReportGenerating ? (
                             <>
-                            <CircularProgress />
                             <p style={{ fontWeight: "600", marginBottom: "10px", marginTop: "10px" }}>
                                 Conversation finished, please wait for your report to generate!
                             </p>
+                            <CircularProgress />
                         </>
                         ) : (
                             <p style={{ fontWeight: "600", marginBottom: "10px" }}>
