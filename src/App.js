@@ -6,7 +6,7 @@ import ChatPage from "./Components/chatpage";
 import MedFormPage from "./Components/responsiveformpage";
 import BinaryFormPage from "./Components/binaryformpage";
 import EndPage from "./Components/endpage";
-import audioServiceInstance from './audioService';
+import audioServiceInstance from '.Components/audioService';
 
 
 function App() {
