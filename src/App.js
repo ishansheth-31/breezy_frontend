@@ -6,6 +6,8 @@ import ChatPage from "./Components/chatpage";
 import MedFormPage from "./Components/responsiveformpage";
 import BinaryFormPage from "./Components/binaryformpage";
 import EndPage from "./Components/endpage";
+import audioServiceInstance from './audioService';
+
 
 function App() {
     const pathParts = window.location.href.split("/");
@@ -40,6 +42,17 @@ function App() {
         setInitialQuestions(updatedQuestions);
     };
 
+    const handlePlayAudio = async (audioUrl) => {
+        try {
+            setIsPlayingAudio(true);
+            await audioServiceInstance.playAudio(audioUrl);
+        } catch (error) {
+            console.error("Error playing audio:", error);
+        } finally {
+            setIsPlayingAudio(false);
+        }
+    };
+
     const startConversation = async () => {
         try {
             setLoading(true);
@@ -53,8 +66,19 @@ function App() {
             setChatHistory([
                 { role: "assistant", content: response.data.initial_response },
             ]);
+
+            const audioUrl = await audioServiceInstance.fetchAudio(response.data.initial_response);
+
             setIsConversationStarted(true);
             setLoading(false);
+
+            if (audioUrl) {
+                try {
+                    await handlePlayAudio(audioUrl);  // Play the nurse's response
+                } catch (error) {
+                    console.error("Error playing audio:", error);
+                }
+            }
         } catch (error) {
             console.error("Error starting conversation:", error);
             setLoading(false);
