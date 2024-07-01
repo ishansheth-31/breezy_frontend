@@ -232,9 +232,12 @@ const ChatPage = ({
                 {isConversationFinished && (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                         {isReportGenerating ? (
-                            <p style={{ fontWeight: "600", marginBottom: "10px" }}>
+                            <>
+                            <CircularProgress />
+                            <p style={{ fontWeight: "600", marginBottom: "10px", marginTop: "10px" }}>
                                 Conversation finished, please wait for your report to generate!
                             </p>
+                        </>
                         ) : (
                             <p style={{ fontWeight: "600", marginBottom: "10px" }}>
                                 Conversation finished! You may leave this page!
