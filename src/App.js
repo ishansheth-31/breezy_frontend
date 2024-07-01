@@ -32,6 +32,8 @@ function App() {
     const [stageNumber, setStageNumber] = useState(-1);
     const [loading, setLoading] = useState(false);
     const [chatHistory, setChatHistory] = useState([]);
+    const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
 
     const handleSubmission = (input, stageNumber) => {
         const questionKey = Object.keys(initialQuestions)[stageNumber];
