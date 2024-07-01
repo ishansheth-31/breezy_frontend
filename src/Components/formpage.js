@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "./App.css"; // Ensure the CSS file is imported
 
 const FormPage = ({
     stageNumber,
@@ -133,7 +132,6 @@ const FormPage = ({
                                     fontSize: "18px",
                                     borderRadius: "0px",
                                 }}
-                                className={input.inputLabel.includes("Surgeries") ? "wide-input" : ""}
                                 name={input.inputLabel}
                                 onChange={(e) =>
                                     handleInputChange(index, e.target.value)
