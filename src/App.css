@@ -12,6 +12,10 @@
     justify-content: end;
 }
 
+.wide-input {
+    width: 400px;
+}
+
 /* ===== Scrollbar CSS ===== */
 /* Firefox */
 * {
@@ -33,3 +37,4 @@
     border-radius: 10px;
     border: 3px solid #ffffff;
 }
+
