@@ -141,10 +141,6 @@ const ChatPage = ({
                 }
 
                 setIsConversationFinished(finished);
-
-                if (finished) {
-                    fetchReport();  // Generate the report after the conversation is finished
-                }
             });
 
             socket.on("current_transcript", (data) => {
