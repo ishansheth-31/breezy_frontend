@@ -208,7 +208,6 @@ const ResponsiveFormPage = ({
                         overflowY: "auto",
                         width: "100%",
                         marginBottom: "10px",
-                        marginLeft: "10px",
                         paddingRight: "10px",
                     }}
                 >
