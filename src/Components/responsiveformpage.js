@@ -129,16 +129,17 @@ const ResponsiveFormPage = ({
                     alt="Logo"
                 />
                 <p style={{ fontSize: "18px", fontWeight: "400" }}>
-                    {question}{" "}
-                    <span
+                    {question}
+                    <div
                         style={{
                             fontSize: "12px",
+                            marginTop: "2px",
                             fontWeight: "600",
                             color: "#65C6FF",
                         }}
                     >
                         (click + to add)
-                    </span>
+                    </div>
                 </p>
                 <div
                     style={{
@@ -258,14 +259,26 @@ const ResponsiveFormPage = ({
                     ))}
                 </div>
                 <div>
-                    <input
-                        type="checkbox"
+                    <button
+                        style={{
+                            borderRadius: "5px",
+                            backgroundColor: "#fff",
+                            border: "1px solid #2e9ee8",
+                            padding: "5px",
+                            color: "#2e9ee8",
+                            fontSize: "12px",
+                            cursor: "pointer",
+                            transition: "background-color 0.3s, color 0.3s",
+                        }}
                         id="none"
                         name="none"
-                        checked={isNone}
-                        onChange={handleCheckboxChange}
-                    />
-                    <label htmlFor="none">None</label>
+                        onClick={() => {
+                            handleSubmission("none", stageNumber);
+                            setStageNumber(stageNumber + 1);
+                        }}
+                    >
+                        None
+                    </button>
                 </div>
             </div>
             <div
