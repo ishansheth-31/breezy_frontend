@@ -4,7 +4,7 @@ import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
 import StopIcon from "@mui/icons-material/Stop";
-import audioServiceInstance from './audioService';
+import audioServiceInstance from "./audioService";
 
 const ChatPage = ({
     patient_id,
@@ -17,7 +17,8 @@ const ChatPage = ({
 
     useEffect(() => {
         if (chatHistoryRef.current) {
-            chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+            chatHistoryRef.current.scrollTop =
+                chatHistoryRef.current.scrollHeight;
         }
     }, [chatHistory]);
 
@@ -26,7 +27,9 @@ const ChatPage = ({
     const [socket, setSocket] = useState(null);
     const [microphone, setMicrophone] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    // eslint-disable-next-line no-unused-vars
     const [currentResponse, setCurrentResponse] = useState("");
+    // eslint-disable-next-line no-unused-vars
     const [latestAudioUrl, setLatestAudioUrl] = useState("");
     const [isPlayingAudio, setIsPlayingAudio] = useState(false);
     const [fullTranscript, setFullTranscript] = useState("");
@@ -34,7 +37,9 @@ const ChatPage = ({
     const [isReportGenerating, setIsReportGenerating] = useState(false);
 
     useEffect(() => {
-        const socketIo = io("https://breezy-backend-de177311f71b.herokuapp.com");
+        const socketIo = io(
+            "https://breezy-backend-de177311f71b.herokuapp.com"
+        );
         setSocket(socketIo);
 
         return () => {
@@ -64,7 +69,9 @@ const ChatPage = ({
 
     const getMicrophone = async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+            });
             const mimeType = MediaRecorder.isTypeSupported("audio/mp4")
                 ? "audio/mp4"
                 : "audio/webm";
@@ -125,7 +132,9 @@ const ChatPage = ({
                     { role: "user", content: user_message },
                     { role: "assistant", content: response },
                 ]);
-                const audioUrl = await audioServiceInstance.fetchAudio(response);
+                const audioUrl = await audioServiceInstance.fetchAudio(
+                    response
+                );
                 setLatestAudioUrl(audioUrl);
                 updateResponse(response);
                 setLoading(false);
@@ -134,7 +143,7 @@ const ChatPage = ({
 
                 if (audioUrl) {
                     try {
-                        await handlePlayAudio(audioUrl);  // Play the nurse's response
+                        await handlePlayAudio(audioUrl); // Play the nurse's response
                     } catch (error) {
                         console.error("Error playing audio:", error);
                     }
@@ -163,66 +172,189 @@ const ChatPage = ({
                 socket.off("current_transcript");
             };
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket]);
 
     return (
-        <div style={{ display: "flex", width: "100%", flexDirection: "column", padding: "15px", alignItems: "start" }}>
-            <div style={{ display: "flex", height: "25%", width: "100%", flexDirection: "column" }}>
-                <p style={{ fontWeight: "600", marginBottom: "10px" }}>Breezy Medical</p>
-                <div style={{ display: "flex", width: "80%", alignItems: "center", backgroundColor: "#94d1f2", padding: "5px 10px", borderRadius: "10px", fontSize: "12px", marginTop: "10px" }}>
+        <div
+            style={{
+                display: "flex",
+                width: "100%",
+                flexDirection: "column",
+                padding: "15px",
+                alignItems: "start",
+            }}
+        >
+            <div
+                style={{
+                    display: "flex",
+                    height: "25%",
+                    width: "100%",
+                    flexDirection: "column",
+                }}
+            >
+                <p style={{ fontWeight: "600", marginBottom: "10px" }}>
+                    Breezy Medical
+                </p>
+                <div
+                    style={{
+                        display: "flex",
+                        width: "80%",
+                        alignItems: "center",
+                        backgroundColor: "#94d1f2",
+                        padding: "5px 10px",
+                        borderRadius: "10px",
+                        fontSize: "12px",
+                        marginTop: "10px",
+                    }}
+                >
                     <p>
-                        Meet your nurse, <strong>Ava</strong>. Please complete this short conversation so we can see you.
+                        Meet your nurse, <strong>Ava</strong>. Please complete
+                        this short conversation so we can see you.
                     </p>
                 </div>
             </div>
-            <div style={{ display: "flex", width: "100%", height: "65%", alignItems: "start", flexDirection: "column", margin: "10px 0px" }}>
-                <div className="chat-history" ref={chatHistoryRef} style={{ height: "100%", width: "100%", overflowY: "auto", border: "1px solid #94d1f2", borderRadius: "10px 0px 0px 10px" }}>
+            <div
+                style={{
+                    display: "flex",
+                    width: "100%",
+                    height: "65%",
+                    alignItems: "start",
+                    flexDirection: "column",
+                    margin: "10px 0px",
+                }}
+            >
+                <div
+                    className="chat-history"
+                    ref={chatHistoryRef}
+                    style={{
+                        height: "100%",
+                        width: "100%",
+                        overflowY: "auto",
+                        border: "1px solid #94d1f2",
+                        borderRadius: "10px 0px 0px 10px",
+                    }}
+                >
                     {chatHistory.map((msg, index) => (
-                        <div key={index} style={{ marginBottom: "10px", padding: "10px" }} className={msg.role}>
-                            <strong>{msg.role === "user" ? "You" : "Virtual Nurse"}:</strong> {msg.content}
+                        <div
+                            key={index}
+                            style={{ marginBottom: "10px", padding: "10px" }}
+                            className={msg.role}
+                        >
+                            <strong>
+                                {msg.role === "user" ? "You" : "Virtual Nurse"}:
+                            </strong>{" "}
+                            {msg.content}
                         </div>
                     ))}
                 </div>
             </div>
-            <div style={{ display: "flex", width: "100%", height: "10%", alignItems: "center", justifyContent: "center", flexDirection: "column", marginTop: "32px" }}>
+            <div
+                style={{
+                    display: "flex",
+                    width: "100%",
+                    height: "10%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    marginTop: "32px",
+                }}
+            >
                 {!isConversationFinished && (
-                    <div style={{ display: "flex", height: "100%", width: "100%", justifyContent: "center", alignItems: "center" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            height: "100%",
+                            width: "100%",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}
+                    >
                         {!loading && !isPlayingAudio && (
                             <>
                                 {!isRecording ? (
                                     <button
-                                        style={{ borderColor: "#65C6FF", color: "#ffffff", borderRadius: "20px", padding: "10px 20px 10px 20px", border: "0px", backgroundColor: "#94d1f2", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                                        style={{
+                                            borderColor: "#65C6FF",
+                                            color: "#ffffff",
+                                            borderRadius: "20px",
+                                            padding: "10px 20px 10px 20px",
+                                            border: "0px",
+                                            backgroundColor: "#94d1f2",
+                                            fontSize: "12px",
+                                            fontWeight: "600",
+                                            cursor: "pointer",
+                                        }}
                                         onClick={() => {
                                             if (!isRecording && !isProcessing) {
-                                                socket.emit("toggle_transcription", { action: "start" });
+                                                socket.emit(
+                                                    "toggle_transcription",
+                                                    { action: "start" }
+                                                );
                                                 startRecording();
                                             }
                                         }}
-                                        disabled={isProcessing || (isRecording && !fullTranscript.trim())}
+                                        disabled={
+                                            isProcessing ||
+                                            (isRecording &&
+                                                !fullTranscript.trim())
+                                        }
                                     >
                                         <KeyboardVoiceIcon />
                                     </button>
+                                ) : isTranscriptProcessing ? (
+                                    <span
+                                        style={{
+                                            fontWeight: "600",
+                                            color: "#94d1f2",
+                                        }}
+                                    >
+                                        Listening...
+                                    </span>
                                 ) : (
-                                    isTranscriptProcessing ? (
-                                        <span style={{ fontWeight: "600", color: "#94d1f2" }}>Listening...</span>
-                                    ) : (
-                                        <button
-                                            style={{ borderColor: "#65C6FF", color: "#ffffff", borderRadius: "20px", padding: "10px 20px 10px 20px", border: "0px", backgroundColor: "#94d1f2", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
-                                            onClick={stopRecording}
-                                            disabled={isProcessing || (isRecording && !fullTranscript.trim())}
-                                        >
-                                            <StopIcon />
-                                        </button>
-                                    )
+                                    <button
+                                        style={{
+                                            borderColor: "#65C6FF",
+                                            color: "#ffffff",
+                                            borderRadius: "20px",
+                                            padding: "10px 20px 10px 20px",
+                                            border: "0px",
+                                            backgroundColor: "#94d1f2",
+                                            fontSize: "12px",
+                                            fontWeight: "600",
+                                            cursor: "pointer",
+                                        }}
+                                        onClick={stopRecording}
+                                        disabled={
+                                            isProcessing ||
+                                            (isRecording &&
+                                                !fullTranscript.trim())
+                                        }
+                                    >
+                                        <StopIcon />
+                                    </button>
                                 )}
                             </>
                         )}
                         {(loading || isPlayingAudio) && (
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                }}
+                            >
                                 <CircularProgress />
                                 {isReportGenerating && (
-                                    <p style={{ marginTop: "10px", fontWeight: "600", color: "#94d1f2" }}>
-                                        Please hold on while your report is being generated
+                                    <p
+                                        style={{
+                                            marginTop: "10px",
+                                            fontWeight: "600",
+                                            color: "#94d1f2",
+                                        }}
+                                    >
+                                        Please hold on while your report is
+                                        being generated
                                     </p>
                                 )}
                             </div>
@@ -230,16 +362,34 @@ const ChatPage = ({
                     </div>
                 )}
                 {isConversationFinished && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                        }}
+                    >
                         {isReportGenerating ? (
                             <>
-                            <p style={{ fontWeight: "600", marginBottom: "10px", marginTop: "10px" }}>
-                                Conversation finished, please wait for your report to generate!
-                            </p>
-                            <CircularProgress />
-                        </>
+                                <p
+                                    style={{
+                                        fontWeight: "600",
+                                        marginBottom: "10px",
+                                        marginTop: "10px",
+                                    }}
+                                >
+                                    Conversation finished, please wait for your
+                                    report to generate!
+                                </p>
+                                <CircularProgress />
+                            </>
                         ) : (
-                            <p style={{ fontWeight: "600", marginBottom: "10px" }}>
+                            <p
+                                style={{
+                                    fontWeight: "600",
+                                    marginBottom: "10px",
+                                }}
+                            >
                                 Conversation finished! You may leave this page!
                             </p>
                         )}

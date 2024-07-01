@@ -15,11 +15,15 @@ const BinaryFormPage = ({
 
     const handleButtonClick = (value) => {
         setInput(value);
+        handleSubmission(input, stageNumber);
+        if (stageNumber !== 12) {
+            setStageNumber(stageNumber + 1);
+        }
     };
 
-    const isInputEmpty = () => {
-        return input.trim() === "";
-    };
+    // const isInputEmpty = () => {
+    //     return input.trim() === "";
+    // };
 
     return (
         <div
@@ -161,7 +165,7 @@ const BinaryFormPage = ({
                     flexDirection: "column",
                 }}
             >
-                <button
+                {/* <button
                     onClick={() => {
                         if (!isInputEmpty()) {
                             handleSubmission(input, stageNumber);
@@ -183,7 +187,7 @@ const BinaryFormPage = ({
                     }}
                 >
                     {submitLabel}
-                </button>
+                </button> */}
             </div>
         </div>
     );

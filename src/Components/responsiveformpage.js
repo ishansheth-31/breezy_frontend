@@ -62,7 +62,7 @@ const ResponsiveFormPage = ({
             <div
                 style={{
                     display: "flex",
-                    height: "55%",
+                    height: "35%",
                     width: "100%",
                     flexDirection: "column",
                 }}
@@ -110,24 +110,14 @@ const ResponsiveFormPage = ({
                         this form so we can help serve you.
                     </p>
                 </div>
-                <div style={{ overflowY: "auto", margin: "10px" }}>
-                    {cumulativeInput.map((entry, index) => (
-                        <div key={index} style={{ marginBottom: "5px" }}>
-                            {Object.entries(entry).map(([key, value]) => (
-                                <span key={key}>
-                                    {key}: {value}{" "}
-                                </span>
-                            ))}
-                        </div>
-                    ))}
-                </div>
             </div>
             <div
                 style={{
                     display: "flex",
-                    width: "80%",
-                    height: "35%",
+                    width: "95%",
+                    height: "55%",
                     alignItems: "start",
+                    justifyContent: "end",
                     flexDirection: "column",
                 }}
             >
@@ -152,6 +142,22 @@ const ResponsiveFormPage = ({
                 </p>
                 <div
                     style={{
+                        overflowY: "auto",
+                        width: "100%",
+                        marginBottom: "5px",
+                    }}
+                >
+                    {cumulativeInput.map((entry, index) => (
+                        <div key={index} style={{ marginBottom: "5px" }}>
+                            {index + 1}:{" "}
+                            {Object.entries(entry).map(([key, value]) => (
+                                <span key={key}>{value} </span>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+                <div
+                    style={{
                         display: "flex",
                         width: "100%",
                         gap: "30px",
@@ -163,6 +169,7 @@ const ResponsiveFormPage = ({
                             style={{
                                 display: "flex",
                                 flexDirection: "column",
+                                width: index === 0 ? "100%" : "50%",
                                 flex: 1,
                             }}
                         >
@@ -234,10 +241,11 @@ const ResponsiveFormPage = ({
             >
                 <button
                     onClick={() => {
-                        if (!isAnyCumInputEmpty()) {
+                        if (!isAnyCumInputEmpty() || !isAnyInputEmpty()) {
                             if (isNone) {
                                 handleSubmission("none", stageNumber);
                             } else {
+                                handleAddInput();
                                 handleSubmission(
                                     JSON.stringify(cumulativeInput),
                                     stageNumber

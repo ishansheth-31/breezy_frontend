@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 const EndPage = ({
     stageNumber,
@@ -20,7 +20,7 @@ const EndPage = ({
             <div
                 style={{
                     display: "flex",
-                    height: "90%",
+                    height: "18%",
                     width: "100%",
                     flexDirection: "column",
                 }}
@@ -50,15 +50,40 @@ const EndPage = ({
                         &lt; Previous
                     </p>
                 )}
+            </div>
+            <div
+                style={{
+                    display: "flex",
+                    height: "70%",
+                    width: "100%",
+                    flexDirection: "column",
+                    alignItems: "center",
+                }}
+            >
+                <div
+                    style={{
+                        display: "flex",
+                        width: "80%",
+                        alignItems: "center",
+                        backgroundColor: "#94d1f2",
+                        padding: "5px 10px 5px 10px",
+                        borderRadius: "10px",
+                        fontSize: "12px",
+                    }}
+                >
+                    <p>
+                        {question} Below, view instructions regarding how to
+                        complete the next step of this pre-visit form, and press{" "}
+                        <strong>'Start Conversation'</strong> to begin.
+                    </p>
+                </div>
                 <div
                     style={{
                         display: "flex",
                         width: "fit-content",
-                        height: "40%",
+                        height: "55%",
                         alignItems: "center",
-                        backgroundColor: "#94d1f2",
                         padding: "5px 5px 5px 5px",
-                        borderRadius: "10px",
                         fontSize: "12px",
                         marginTop: "10px",
                         marginBottom: "10px",
@@ -68,13 +93,13 @@ const EndPage = ({
                         src="/breezymedtutorial.jpg"
                         alt=""
                         style={{
-                            borderRadius: "10px",
+                            border: "solid 1px",
                             maxHeight: "100%",
                             maxWidth: "100%",
                         }}
                     />
                 </div>
-                <p
+                {/* <p
                     style={{
                         fontSize: "18px",
                         fontWeight: "400",
@@ -82,15 +107,16 @@ const EndPage = ({
                     }}
                 >
                     {question}
-                </p>
+                </p> */}
             </div>
             <div
                 style={{
                     display: "flex",
-                    width: "100%",
                     height: "10%",
-                    alignItems: "end",
+                    width: "100%",
                     flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "end",
                 }}
             >
                 <button
@@ -101,6 +127,7 @@ const EndPage = ({
                         borderColor: "#65C6FF",
                         backgroundColor: "white",
                         borderRadius: "100px",
+                        width: "80%",
                         padding: "10px 20px 10px 20px",
                         border: "1px solid",
                         color: "#2e9ee8",
