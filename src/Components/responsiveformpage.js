@@ -117,7 +117,7 @@ const ResponsiveFormPage = ({
                     width: "95%",
                     height: "55%",
                     alignItems: "start",
-                    justifyContent: "end",
+                    justifyContent: "start",
                     flexDirection: "column",
                 }}
             >
@@ -142,22 +142,6 @@ const ResponsiveFormPage = ({
                 </p>
                 <div
                     style={{
-                        overflowY: "auto",
-                        width: "100%",
-                        marginBottom: "5px",
-                    }}
-                >
-                    {cumulativeInput.map((entry, index) => (
-                        <div key={index} style={{ marginBottom: "5px" }}>
-                            {index + 1}:{" "}
-                            {Object.entries(entry).map(([key, value]) => (
-                                <span key={key}>{value} </span>
-                            ))}
-                        </div>
-                    ))}
-                </div>
-                <div
-                    style={{
                         display: "flex",
                         width: "100%",
                         gap: "30px",
@@ -169,8 +153,8 @@ const ResponsiveFormPage = ({
                             style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                width: index === 0 ? "100%" : "50%",
-                                flex: 1,
+                                width: "100%",
+                                flex: 2,
                             }}
                         >
                             <input
@@ -218,6 +202,61 @@ const ResponsiveFormPage = ({
                     >
                         +
                     </button>
+                </div>
+                <div
+                    style={{
+                        overflowY: "auto",
+                        width: "100%",
+                        marginBottom: "10px",
+                        marginLeft: "10px",
+                        paddingRight: "10px",
+                    }}
+                >
+                    {cumulativeInput.toReversed().map((entry, index) => (
+                        <div
+                            key={index}
+                            style={{
+                                display: "flex",
+                                width: "100%",
+                                gap: "30px",
+                            }}
+                        >
+                            {Object.entries(entry).map(([key, value]) => (
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        width: "90%",
+                                        flex: 1,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            height: "28px",
+                                            width: "100%",
+                                            borderTop: "none",
+                                            borderLeft: "none",
+                                            borderRight: "none",
+                                            borderBottom: "1px solid",
+                                            fontSize: "18px",
+                                            borderRadius: "0px",
+                                        }}
+                                    >
+                                        {value}
+                                    </div>
+                                    <p
+                                        style={{
+                                            marginTop: "0px",
+                                            marginLeft: "2px",
+                                            fontSize: "12px",
+                                        }}
+                                    >
+                                        {key}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
                 </div>
                 <div>
                     <input
