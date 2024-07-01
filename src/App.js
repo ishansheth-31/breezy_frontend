@@ -15,7 +15,7 @@ function App() {
         "What is your first and last name?": "",
         "What is your approximate height?": "4'0\"",
         "What is your approximate weight?": "",
-        "Are you currently taking any medications?": "",
+        "Have you started any new medications?": "",
         "Have you had any recent surgeries?": "",
         "Do you have any known drug allergies?": "",
         "Do you smoke or vape?": "",
