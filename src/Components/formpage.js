@@ -139,7 +139,7 @@ const FormPage = ({
                                 type={input.inputType}
                                 value={input[index]}
                                 placeholder={
-                                    input.inputLabel === "Surgery Date" ? "dd/mm/yyyy" : `Enter ${input.inputLabel.toLowerCase()}`
+                                    inputConfig.inputLabel === "Surgery Date" ? "dd/mm/yyyy" : `Enter ${input.inputLabel.toLowerCase()}`
                                 }
                             />
                             <p
