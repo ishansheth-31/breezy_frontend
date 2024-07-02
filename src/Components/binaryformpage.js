@@ -15,7 +15,7 @@ const BinaryFormPage = ({
 
     const handleButtonClick = (value) => {
         setInput(value);
-        handleSubmission(input, stageNumber);
+        handleSubmission(value, stageNumber);
         if (stageNumber !== 12) {
             setStageNumber(stageNumber + 1);
         }
